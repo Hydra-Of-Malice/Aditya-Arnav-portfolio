@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: #0a0a0a;
+  --color-surface: #121212;
+  --color-surfaceHover: #1e1e1e;
+  --color-primary: #06b6d4;
+  --color-textMain: #f3f4f6;
+  --color-textMuted: #9ca3af;
+  --font-sans: "Inter", "Roboto", "sans-serif";
+  --font-mono: "Fira Code", "JetBrains Mono", "monospace";
+  --animate-spin-3d: spin3d 20s linear infinite;
+
+  @keyframes spin3d {
+    0% {
+      transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+    }
+    100% {
+      transform: rotateX(360deg) rotateY(360deg) rotateZ(360deg);
+    }
+  }
+}
+
+@layer base {
+  body {
+    @apply bg-background text-textMain antialiased selection:bg-primary/30 selection:text-primary;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@utility glass-panel {
+  @apply bg-surface/80 backdrop-blur-md border border-white/5;
+}
