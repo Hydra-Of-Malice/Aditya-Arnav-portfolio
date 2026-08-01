@@ -1,106 +1,55 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X } from 'lucide-react';
 import { portfolioData } from '../data';
+import { useScrolled } from '../lib/hooks';
 
-const navLinks = [
-  { name: 'About', href: '#about' },
-  { name: 'Experience', href: '#experience' },
-  { name: 'Projects', href: '#projects' },
-  { name: 'Research', href: '#research' },
-  { name: 'Skills', href: '#skills' },
-];
-
-const Navbar: React.FC = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+/**
+ * Navigation itself lives in the dock at the bottom of the screen, so all this
+ * bar carries is the mark and the name — and only once you've scrolled past
+ * the masthead, where the name is already the largest thing on the page.
+ */
+export function Navbar() {
+  const scrolled = useScrolled(260);
 
   return (
-    <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? 'bg-surface/90 backdrop-blur-md border-b border-white/5 py-4' : 'bg-transparent py-6'
-      }`}
-    >
-      <div className="container mx-auto px-6 md:px-12 max-w-6xl flex justify-between items-center">
-        <a href="#" className="text-xl font-mono font-bold text-primary tracking-tighter">
-          {portfolioData.personalInfo.name.split(' ').map(n => n[0]).join('')}.<span className="text-textMain">dev</span>
-        </a>
+    <>
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-60 focus:rounded-lg focus:border focus:border-line focus:bg-elev focus:px-3 focus:py-1.5 focus:text-sm focus:text-title"
+      >
+        Skip to content
+      </a>
 
-        {/* Desktop Nav */}
-        <nav className="hidden md:flex gap-8 items-center">
-          {navLinks.map((link, i) => (
-            <motion.a
-              key={link.name}
-              href={link.href}
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.1 }}
-              className="text-sm font-mono text-textMuted hover:text-primary transition-colors"
-            >
-              <span className="text-primary mr-1">0{i + 1}.</span> {link.name}
-            </motion.a>
-          ))}
-          <motion.a
-            href="#contact"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.5 }}
-            className="px-4 py-2 text-sm font-mono text-primary border border-primary rounded hover:bg-primary/10 transition-colors"
+      <header
+        inert={!scrolled}
+        className={`fixed inset-x-0 top-0 z-40 transition-opacity duration-500 ${
+          scrolled ? 'opacity-100' : 'pointer-events-none opacity-0'
+        }`}
+      >
+        <div
+          aria-hidden
+          className="absolute inset-0 backdrop-blur-md"
+          style={{
+            background: 'linear-gradient(to bottom, var(--bg) 30%, transparent)',
+            maskImage: 'linear-gradient(to bottom, #000 60%, transparent)',
+          }}
+        />
+
+        <div className="measure relative flex items-center gap-2.5 px-6 py-3.5 md:px-8">
+          <a
+            href="#top"
+            className="group flex items-center gap-2.5"
+            aria-label={`${portfolioData.personalInfo.name} — back to top`}
           >
-            Connect
-          </motion.a>
-        </nav>
-
-        {/* Mobile Toggle */}
-        <button
-          className="md:hidden text-textMain"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        >
-          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-      </div>
-
-      {/* Mobile Nav */}
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-surface border-b border-white/5"
-          >
-            <nav className="flex flex-col items-center py-8 gap-6">
-              {navLinks.map((link, i) => (
-                <a
-                  key={link.name}
-                  href={link.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="text-base font-mono text-textMain hover:text-primary transition-colors"
-                >
-                  <span className="text-primary mr-2">0{i + 1}.</span> {link.name}
-                </a>
-              ))}
-              <a
-                href="#contact"
-                onClick={() => setMobileMenuOpen(false)}
-                className="mt-4 px-8 py-3 text-sm font-mono text-primary border border-primary rounded hover:bg-primary/10 transition-colors"
-              >
-                Connect
-              </a>
-            </nav>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </header>
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg border border-line bg-elev text-[0.8125rem] font-semibold text-title transition-colors group-hover:border-accent-line group-hover:text-accent">
+              {portfolioData.personalInfo.initials.charAt(0)}
+            </span>
+            <span className="text-[0.875rem] font-medium text-title transition-colors group-hover:text-accent">
+              {portfolioData.personalInfo.name}
+            </span>
+          </a>
+        </div>
+      </header>
+    </>
   );
-};
+}
 
 export default Navbar;

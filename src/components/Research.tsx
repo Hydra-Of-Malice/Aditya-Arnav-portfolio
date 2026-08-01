@@ -1,39 +1,36 @@
-import React from 'react';
-import Section from './Section';
 import { portfolioData } from '../data';
-import { FileText, Award } from 'lucide-react';
+import * as Icon from './Icons';
+import Section from './Section';
 
-const Research: React.FC = () => {
+export function Research() {
   return (
-    <Section id="research" title="04. Research & Patents">
-      <div className="grid md:grid-cols-2 gap-8">
-        {portfolioData.research.map((item, index) => (
-          <div key={index} className="glass-panel p-8 rounded-lg flex flex-col h-full border-t-2 border-t-primary/50">
-            <div className="flex items-center gap-3 mb-4">
-              <FileText className="text-primary" size={24} />
-              <h3 className="text-lg font-bold text-textMain leading-tight">
-                {item.title}
-              </h3>
-            </div>
-            
-            <p className="text-textMuted text-sm mb-6 flex-grow leading-relaxed">
-              {item.description}
-            </p>
-            
-            <div className="flex justify-between items-center mt-auto pt-4 border-t border-white/5">
-              <span className="text-xs font-mono text-textMuted flex items-center gap-1">
-                <Award size={14} />
-                {item.status}
-              </span>
-              <span className="text-xs font-mono text-primary bg-primary/10 px-2 py-1 rounded">
-                {item.date}
-              </span>
-            </div>
-          </div>
+    <Section
+      id="research"
+      eyebrow="04 / Patents"
+      title="Filed & published"
+      intro="Two patents through the VIT IPR cell."
+    >
+      <ol className="trail grid gap-4 sm:grid-cols-2">
+        {portfolioData.research.map((item, i) => (
+          <li key={item.title} style={{ '--i': i } as React.CSSProperties}>
+            <article className="card flex h-full flex-col p-4 transition-colors hover:border-accent-line sm:p-5">
+              <div className="flex items-start justify-between gap-4">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-accent-line bg-accent-soft text-accent">
+                  <Icon.Award className="h-4 w-4" />
+                </span>
+                <span className="badge">{item.status}</span>
+              </div>
+
+              <h3 className="mt-3.5 text-[0.9375rem] font-semibold leading-snug">{item.title}</h3>
+              <p className="mt-1 text-[0.8125rem] text-accent">{item.role}</p>
+              <p className="mt-3 text-[0.875rem] leading-relaxed">{item.description}</p>
+              <p className="meta mt-auto pt-4">{item.reference}</p>
+            </article>
+          </li>
         ))}
-      </div>
+      </ol>
     </Section>
   );
-};
+}
 
 export default Research;
