@@ -1,95 +1,109 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import heroArt from '../assets/hero.png';
 import { portfolioData } from '../data';
-import { Mail, MapPin } from 'lucide-react';
-import { Github, Linkedin } from './icons';
-import Cube3D from './Cube3D';
+import { useRotating } from '../lib/hooks';
+import * as Icon from './Icons';
 
-const Hero: React.FC = () => {
-  const { personalInfo } = portfolioData;
+const { personalInfo, stats, marquee } = portfolioData;
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.2, delayChildren: 0.3 }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
-  };
+export function Hero() {
+  const { item: role, index } = useRotating(personalInfo.roles);
 
   return (
-    <section className="min-h-screen flex items-center pt-20 relative overflow-hidden">
-      {/* Background Matrix/Grid effect placeholder */}
-      <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none" 
-           style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '32px 32px' }} />
-      
-      <div className="container mx-auto px-6 md:px-12 max-w-6xl relative z-10 flex flex-col lg:flex-row items-center justify-between gap-12">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="max-w-3xl flex-grow"
-        >
-          <motion.div variants={itemVariants} className="text-primary font-mono mb-4 text-sm md:text-base">
-            &gt; Initialization sequence complete. Welcome, I am
-          </motion.div>
-          
-          <motion.h1 variants={itemVariants} className="text-5xl md:text-7xl font-bold text-textMain mb-4 tracking-tight">
-            {personalInfo.name}.
-          </motion.h1>
-          
-          <motion.h2 variants={itemVariants} className="text-4xl md:text-6xl font-bold text-textMuted mb-6 tracking-tight">
-            I build intelligent systems.
-          </motion.h2>
-          
-          <motion.p variants={itemVariants} className="text-lg md:text-xl text-textMuted max-w-2xl mb-10 leading-relaxed">
-            {personalInfo.title} currently studying {personalInfo.subtitle}. 
-            I specialize in orchestrating multi-agent systems, real-time AI pipelines, 
-            and scalable microservices.
-          </motion.p>
-          
-          <motion.div variants={itemVariants} className="flex flex-wrap gap-6 items-center mb-12">
-            <a href={`mailto:${personalInfo.email}`} className="flex items-center gap-2 text-textMuted hover:text-primary transition-colors">
-              <Mail size={20} />
-              <span className="font-mono text-sm">Email</span>
-            </a>
-            <a href={personalInfo.github} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-textMuted hover:text-primary transition-colors">
-              <Github size={20} />
-              <span className="font-mono text-sm">GitHub</span>
-            </a>
-            <a href={personalInfo.linkedin} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-textMuted hover:text-primary transition-colors">
-              <Linkedin size={20} />
-              <span className="font-mono text-sm">LinkedIn</span>
-            </a>
-            <div className="flex items-center gap-2 text-textMuted">
-              <MapPin size={20} />
-              <span className="font-mono text-sm">{personalInfo.location}</span>
-            </div>
-          </motion.div>
+    <section id="top" className="stagger scroll-mt-24">
+      <p>
+        <span className="badge">
+          <span aria-hidden className="h-1 w-1 rounded-full bg-current" />
+          Available for work
+        </span>
+      </p>
 
-          <motion.div variants={itemVariants}>
-            <a href="#about" className="inline-block px-8 py-4 border border-primary text-primary font-mono rounded hover:bg-primary/10 transition-colors">
-              Explore Architecture
-            </a>
-          </motion.div>
-        </motion.div>
+      <div className="mt-6 flex items-start justify-between gap-8">
+        <div className="min-w-0">
+          <h1 className="display">
+            {personalInfo.name.split(' ')[0]}
+            <br />
+            {personalInfo.name.split(' ').slice(1).join(' ')}
+          </h1>
 
-        {/* Right 3D Visual */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.5 }}
-          className="hidden lg:flex justify-center items-center w-1/3"
+          <p className="mt-4 text-base text-dim">
+            <span className="text-title">{personalInfo.title}</span>
+            <span aria-hidden className="mx-2 text-faint">
+              /
+            </span>
+            {/* Keyed so each role re-runs the entrance animation. */}
+            <span key={index} className="inline-block [animation:enter_0.5s_ease_both] text-accent">
+              {role}
+            </span>
+          </p>
+        </div>
+
+        {/* Decorative only — the page carries no photograph. */}
+        <img
+          src={heroArt}
+          alt=""
+          aria-hidden
+          width={160}
+          height={160}
+          className="hidden h-32 w-32 shrink-0 select-none opacity-90 [animation:float_7s_ease-in-out_infinite] sm:block md:h-40 md:w-40"
+        />
+      </div>
+
+      <p className="mt-6 max-w-[36rem]">
+        I build the unglamorous half of machine learning — the queues, the retries, the p99, the
+        thing that has to still be running at 3am. Currently reading computer science at VIT
+        Vellore and building meeting intelligence at{' '}
+        <a href="#experience" className="link">
+          Zapper Edge
+        </a>
+        .
+      </p>
+
+      <div className="mt-7 flex flex-wrap items-center gap-2.5">
+        <a href={`mailto:${personalInfo.email}`} className="btn btn-primary">
+          <Icon.Mail className="h-4 w-4" />
+          Get in touch
+        </a>
+        <a href={personalInfo.github} target="_blank" rel="noreferrer" className="btn">
+          <Icon.Github className="h-3.5 w-3.5" />
+          GitHub
+        </a>
+        <a href={personalInfo.linkedin} target="_blank" rel="noreferrer" className="btn">
+          <Icon.Linkedin className="h-3.5 w-3.5" />
+          LinkedIn
+        </a>
+        <span className="meta ml-1 hidden items-center gap-1.5 sm:inline-flex">
+          <Icon.MapPin className="h-3.5 w-3.5" />
+          {personalInfo.location}
+        </span>
+      </div>
+
+      <dl className="mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-line bg-line sm:grid-cols-4">
+        {stats.map((stat) => (
+          <div key={stat.label} className="bg-elev px-4 py-3.5">
+            <dt className="text-xl font-semibold tracking-tight text-title tabular-nums">
+              {stat.decimals ? stat.value.toFixed(stat.decimals) : stat.value}
+              <span className="text-accent">{stat.suffix}</span>
+            </dt>
+            <dd className="mt-0.5 text-[0.8125rem] leading-snug text-faint">{stat.label}</dd>
+          </div>
+        ))}
+      </dl>
+
+      <div className="marquee-mask mt-8 overflow-hidden">
+        <ul
+          aria-hidden
+          className="flex w-max gap-2 [animation:marquee_38s_linear_infinite] hover:[animation-play-state:paused]"
         >
-          <Cube3D />
-        </motion.div>
+          {/* Doubled so the -50% translation loops seamlessly. */}
+          {[...marquee, ...marquee].map((tech, i) => (
+            <li key={`${tech}-${i}`} className="badge">
+              {tech}
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );
-};
+}
 
 export default Hero;

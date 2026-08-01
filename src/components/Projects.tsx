@@ -1,55 +1,90 @@
-import React from 'react';
+import { portfolioData, type Project } from '../data';
+import * as Icon from './Icons';
 import Section from './Section';
-import { portfolioData } from '../data';
-import { ExternalLink, Folder } from 'lucide-react';
-import { Github } from './icons';
 
-import TiltCard from './TiltCard';
+// `satisfies` in data.ts keeps the narrow literal type, which drops the
+// optional keys; widen once here so `liveLink` is visible.
+const projects: Project[] = portfolioData.projects;
 
-const Projects: React.FC = () => {
+export function Projects() {
   return (
-    <Section id="projects" title="03. Selected Projects">
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {portfolioData.projects.map((project, index) => (
-          <TiltCard key={index} className="h-full">
-            <div 
-              className="glass-panel p-6 rounded-lg flex flex-col h-full group hover:border-primary/30 transition-colors duration-300"
+    <Section
+      id="projects"
+      eyebrow="03 / Projects"
+      title="Things I've built"
+      intro="A selection — mostly AI systems with a backend underneath."
+    >
+      <ol className="trail grid gap-4 sm:grid-cols-2">
+        {projects.map((project, i) => {
+          const href = project.liveLink ?? project.githubLink;
+
+          return (
+            <li
+              key={project.title}
+              style={{ '--i': i } as React.CSSProperties}
+              className={project.featured ? 'sm:col-span-2' : undefined}
             >
-              <div className="flex justify-between items-start mb-6">
-                <Folder size={40} className="text-primary opacity-80" />
-                <div className="flex gap-4">
-                  {project.githubLink && (
-                    <a href={project.githubLink} target="_blank" rel="noreferrer" className="text-textMuted hover:text-primary transition-colors">
-                      <Github size={20} />
-                    </a>
-                  )}
-                  <a href="#" className="text-textMuted hover:text-primary transition-colors">
-                    <ExternalLink size={20} />
-                  </a>
+              <article className="card card-hover group relative flex h-full flex-col p-4 sm:p-5">
+                <div className="flex items-baseline justify-between gap-4">
+                  <h3 className="text-base font-semibold">
+                    {href ? (
+                      <a href={href} target="_blank" rel="noreferrer" className="hover:text-accent">
+                        {/* Stretch the link across the card so the whole thing is clickable. */}
+                        <span className="absolute inset-0" aria-hidden />
+                        {project.title}
+                      </a>
+                    ) : (
+                      project.title
+                    )}
+                  </h3>
+                  <span className="meta shrink-0">{project.year}</span>
                 </div>
-              </div>
-              
-              <h3 className="text-xl font-bold text-textMain mb-3 group-hover:text-primary transition-colors">
-                {project.title}
-              </h3>
-              
-              <p className="text-textMuted text-sm mb-6 flex-grow leading-relaxed">
-                {project.description}
-              </p>
-              
-              <ul className="flex flex-wrap gap-2 mt-auto">
-                {project.techStack.map((tech, i) => (
-                  <li key={i} className="text-xs font-mono text-primary bg-primary/10 px-2 py-1 rounded">
-                    {tech}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </TiltCard>
-        ))}
-      </div>
+
+                <p className="mt-1 text-[0.875rem] text-accent">{project.blurb}</p>
+                <p className="mt-3 text-[0.875rem] leading-relaxed">{project.description}</p>
+
+                {project.metric && (
+                  <p className="mt-4 flex items-baseline gap-2">
+                    <span className="text-lg font-semibold tracking-tight text-title">
+                      {project.metric.value}
+                    </span>
+                    <span className="meta">{project.metric.label}</span>
+                  </p>
+                )}
+
+                <ul className="mt-4 flex flex-wrap gap-1.5">
+                  {project.techStack.map((tech) => (
+                    <li key={tech} className="badge">
+                      {tech}
+                    </li>
+                  ))}
+                </ul>
+
+                {href && (
+                  <p className="mt-4 flex items-center gap-1.5 pt-0.5 text-[0.8125rem] text-faint transition-colors group-hover:text-accent">
+                    {project.liveLink ? 'Visit site' : 'View source'}
+                    <Icon.ArrowUpRight className="h-3.5 w-3.5" />
+                  </p>
+                )}
+              </article>
+            </li>
+          );
+        })}
+      </ol>
+
+      <p className="mt-6">
+        <a
+          href={portfolioData.personalInfo.github}
+          target="_blank"
+          rel="noreferrer"
+          className="btn"
+        >
+          <Icon.Github className="h-3.5 w-3.5" />
+          More on GitHub
+        </a>
+      </p>
     </Section>
   );
-};
+}
 
 export default Projects;

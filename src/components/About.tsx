@@ -1,43 +1,48 @@
-import React from 'react';
-import Section from './Section';
 import { portfolioData } from '../data';
-import { Terminal } from 'lucide-react';
+import Section from './Section';
 
-const About: React.FC = () => {
-  const { personalInfo } = portfolioData;
+const { personalInfo } = portfolioData;
 
+const facts = [
+  { key: 'Role', value: personalInfo.title },
+  { key: 'Based in', value: personalInfo.location },
+  { key: 'Studying', value: personalInfo.subtitle },
+  { key: 'Focus', value: 'Inference pipelines, agent systems, backend' },
+  { key: 'Also', value: 'DGCA-licensed drone pilot' },
+];
+
+export function About() {
   return (
-    <Section id="about" title="01. About Me">
-      <div className="grid md:grid-cols-2 gap-12 items-center">
-        <div className="space-y-6 text-textMuted leading-relaxed">
+    <Section id="about" eyebrow="01 / About" title="A little background">
+      <div className="grid gap-6 md:grid-cols-[1fr_auto] md:gap-10">
+        <div className="space-y-4">
+          <p>{personalInfo.aboutText}</p>
+
           <p>
-            {personalInfo.aboutText}
+            Most of my work sits between a model and a user: streaming audio into transcription
+            without dropping frames, keeping a queue drained under load, making a retrieval layer
+            return something a person can actually trust. The interesting problems are rarely in
+            the notebook — they show up at the seams.
           </p>
+
           <p>
-            My engineering philosophy centers around building robust, scalable intelligence architectures. 
-            I bridge the gap between complex machine learning models and production-ready applications, 
-            ensuring high performance, reliability, and seamless user experiences.
-          </p>
-          <p>
-            Whether it's deploying real-time transcription bots or architecting multi-agent consensus frameworks, 
-            I thrive on turning cutting-edge AI research into tangible, impactful software.
+            Recently that has meant a meeting-intelligence platform running Faster-Whisper behind
+            FastAPI and Redis, a trust-aware orchestration framework filed as a patent, and a
+            handful of full-stack products where I owned everything from migrations to the UI.
           </p>
         </div>
-        
-        <div className="relative group">
-          <div className="absolute inset-0 bg-primary/20 rounded translate-x-4 translate-y-4 transition-transform group-hover:translate-x-2 group-hover:translate-y-2" />
-          <div className="glass-panel p-8 rounded relative z-10 flex flex-col items-center justify-center min-h-[300px]">
-            <Terminal size={48} className="text-primary mb-4" />
-            <div className="font-mono text-center">
-              <div className="text-textMain mb-2">System Status: <span className="text-green-400">Online</span></div>
-              <div className="text-textMuted text-sm">Modules Loaded: AI/ML, Full-Stack, DevOps</div>
-              <div className="text-textMuted text-sm mt-4">_ Ready for new challenges.</div>
+
+        <dl className="card h-fit divide-y divide-[var(--line-soft)] p-1 md:w-64">
+          {facts.map((fact) => (
+            <div key={fact.key} className="px-3.5 py-2.5">
+              <dt className="label">{fact.key}</dt>
+              <dd className="mt-0.5 text-[0.8125rem] leading-snug text-title">{fact.value}</dd>
             </div>
-          </div>
-        </div>
+          ))}
+        </dl>
       </div>
     </Section>
   );
-};
+}
 
 export default About;
