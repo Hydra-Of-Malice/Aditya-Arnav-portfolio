@@ -5,7 +5,7 @@ export type Theme = 'dark' | 'light';
 /** Reads/writes the `data-theme` attribute that drives every colour token. */
 export function useTheme() {
   const [theme, setThemeState] = useState<Theme>(
-    () => (document.documentElement.dataset.theme as Theme) || 'dark',
+    () => (document.documentElement.dataset.theme as Theme) || 'light',
   );
 
   const toggle = useCallback(() => {

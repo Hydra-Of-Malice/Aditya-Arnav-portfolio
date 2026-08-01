@@ -3,33 +3,15 @@
 /* ---------------------------------------------------------------------------
    Tokens
 
-   Neutral near-black / near-white stock with a single violet accent, picked to
+   Neutral near-white / near-black stock with a single violet accent, picked to
    match the hero artwork. Everything swaps on <html data-theme="…"> so no
    component ever branches on the theme itself.
+
+   Light is the default, so it also backs bare `:root` for the case where the
+   attribute is missing. The dark block must stay last: both selectors have the
+   same specificity, so source order is what lets `data-theme="dark"` win.
 --------------------------------------------------------------------------- */
 :root,
-[data-theme="dark"] {
-  color-scheme: dark;
-
-  --bg: #09090b;
-  --elev: #101013;
-  --elev-hi: #16161a;
-  --glass: #0e0e12d9;
-  --ink-title: #f4f4f5;
-  --ink: #b4b4bd;
-  --dim: #8f8f9a;
-  --faint: #6e6e79;
-  --line: #26262c;
-  --line-soft: #1b1b20;
-  --accent: #a78bfa;
-  --accent-ink: #0b0b10;
-  --accent-soft: #a78bfa1f;
-  --accent-line: #a78bfa4d;
-  --glow-a: #7c3aed33;
-  --glow-b: #38bdf81a;
-  --shadow: 0 1px 2px #0006, 0 12px 40px -12px #000c;
-}
-
 [data-theme="light"] {
   color-scheme: light;
 
@@ -50,6 +32,28 @@
   --glow-a: #7c3aed1f;
   --glow-b: #38bdf814;
   --shadow: 0 1px 2px #0b0b1008, 0 12px 32px -12px #0b0b1024;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg: #09090b;
+  --elev: #101013;
+  --elev-hi: #16161a;
+  --glass: #0e0e12d9;
+  --ink-title: #f4f4f5;
+  --ink: #b4b4bd;
+  --dim: #8f8f9a;
+  --faint: #6e6e79;
+  --line: #26262c;
+  --line-soft: #1b1b20;
+  --accent: #a78bfa;
+  --accent-ink: #0b0b10;
+  --accent-soft: #a78bfa1f;
+  --accent-line: #a78bfa4d;
+  --glow-a: #7c3aed33;
+  --glow-b: #38bdf81a;
+  --shadow: 0 1px 2px #0006, 0 12px 40px -12px #000c;
 }
 
 @theme inline {
