@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -10,9 +10,8 @@
       content="Aditya Arnav — AI/ML software engineer working on inference pipelines, agent orchestration and the backend services around them."
     />
     <meta name="author" content="Aditya Arnav" />
-    <meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)" />
-    <meta name="theme-color" content="#fbfbfd" media="(prefers-color-scheme: light)" />
-    <meta name="color-scheme" content="dark light" />
+    <meta name="theme-color" content="#fbfbfd" />
+    <meta name="color-scheme" content="light dark" />
 
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Aditya Arnav" />
@@ -34,13 +33,12 @@
 
     <script>
       // Set the theme before first paint so there is no flash of the wrong theme.
+      // Light is the default; dark only applies once a visitor toggles into it.
       (function () {
         try {
-          var stored = localStorage.getItem('theme');
-          var prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
-          document.documentElement.dataset.theme = stored || (prefersLight ? 'light' : 'dark');
+          document.documentElement.dataset.theme = localStorage.getItem('theme') || 'light';
         } catch (e) {
-          document.documentElement.dataset.theme = 'dark';
+          document.documentElement.dataset.theme = 'light';
         }
       })();
     </script>
