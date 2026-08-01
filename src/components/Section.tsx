@@ -1,42 +1,35 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import type { ReactNode } from 'react';
+import { useReveal } from '../lib/hooks';
 
 interface SectionProps {
   id: string;
-  title?: string;
-  children: React.ReactNode;
-  className?: string;
+  /** Mono eyebrow above the heading, e.g. "02 — Experience". */
+  eyebrow: string;
+  title: string;
+  intro?: string;
+  children: ReactNode;
 }
 
-const Section: React.FC<SectionProps> = ({ id, title, children, className = '' }) => {
+/**
+ * Every section opens the same way: an eyebrow chip, a heading, an optional
+ * line of intro. The whole block fades up out of blur when it reaches the fold.
+ */
+export function Section({ id, eyebrow, title, intro, children }: SectionProps) {
+  const ref = useReveal<HTMLElement>();
+
   return (
-    <section id={id} className={`py-20 md:py-32 ${className}`}>
-      <div className="container mx-auto px-6 md:px-12 max-w-6xl">
-        {title && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.5 }}
-            className="mb-12 md:mb-16 flex items-center gap-4"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-textMain tracking-tight">
-              {title}
-            </h2>
-            <div className="h-[1px] flex-grow bg-white/10 ml-4 max-w-xs"></div>
-          </motion.div>
-        )}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-        >
-          {children}
-        </motion.div>
-      </div>
+    <section ref={ref} id={id} className="reveal mt-16 scroll-mt-24 md:mt-20">
+      <header className="mb-6">
+        <span className="badge badge-accent">
+          <span aria-hidden className="h-1 w-1 rounded-full bg-current" />
+          {eyebrow}
+        </span>
+        <h2 className="heading mt-4">{title}</h2>
+        {intro && <p className="mt-2 max-w-[38rem] text-dim">{intro}</p>}
+      </header>
+      {children}
     </section>
   );
-};
+}
 
 export default Section;
