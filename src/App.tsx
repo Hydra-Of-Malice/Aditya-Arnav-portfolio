@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import About from './components/About';
 import Contact from './components/Contact';
 import Dock from './components/Dock';
@@ -56,6 +57,8 @@ function App() {
       <div aria-hidden className="h-20" />
 
       <Dock />
+
+      <Analytics />
     </>
   );
 }
