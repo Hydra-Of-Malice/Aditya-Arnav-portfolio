@@ -173,16 +173,6 @@ export const portfolioData = {
       metric: { value: "CSV → PPT", label: "automated reporting" },
     },
     {
-      title: "Biomedical Waste Detection",
-      blurb: "Custom YOLOv8 detection for hazardous waste sorting.",
-      description:
-        "A custom YOLOv8 model trained on 1,500+ annotated images, wrapped in a Flask API and a React operator console for live camera inference.",
-      techStack: ["YOLOv8", "React", "Flask", "OpenCV"],
-      githubLink: "https://github.com/Hydra-Of-Malice/biomedical-waste-segmentation",
-      year: "2025",
-      metric: { value: "91%", label: "detection accuracy" },
-    },
-    {
       title: "MedRail — Agent-Payable Clinical Services",
       blurb: "Clinical APIs an AI agent can discover, pay for, and use — no API key.",
       description:
@@ -191,7 +181,18 @@ export const portfolioData = {
       githubLink: "https://github.com/Hydra-Of-Malice/Medrail",
       liveLink: "https://medrail-1.onrender.com/",
       year: "2026",
+      featured: true,
       metric: { value: "x402", label: "pay-per-call, zero API keys" },
+    },
+    {
+      title: "Biomedical Waste Detection",
+      blurb: "Custom YOLOv8 detection for hazardous waste sorting.",
+      description:
+        "A custom YOLOv8 model trained on 1,500+ annotated images, wrapped in a Flask API and a React operator console for live camera inference.",
+      techStack: ["YOLOv8", "React", "Flask", "OpenCV"],
+      githubLink: "https://github.com/Hydra-Of-Malice/biomedical-waste-segmentation",
+      year: "2025",
+      metric: { value: "91%", label: "detection accuracy" },
     },
     {
       title: "DriftWatch — Self-Healing Data Contracts",
