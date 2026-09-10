@@ -162,23 +162,12 @@ export const portfolioData = {
 
   projects: [
     {
-      title: "Meeting Intelligence Platform",
-      blurb: "Live transcription, diarization and summaries for every meeting.",
-      description:
-        "An end-to-end meeting AI stack: bots join Meet and Teams calls, stream audio through Faster-Whisper, diarize speakers, and hand transcripts to an LLM for summaries and action items.",
-      techStack: ["FastAPI", "Whisper", "Azure OpenAI", "Redis", "Docker", "PostgreSQL", "Playwright"],
-      githubLink: "https://github.com/Hydra-Of-Malice/meeting-intelligence-placeholder",
-      year: "2026",
-      featured: true,
-      metric: { value: "Real-time", label: "streaming transcription" },
-    },
-    {
       title: "ORQUIS — AI Executive Analytics",
       blurb: "Spreadsheets in, boardroom deck out.",
       description:
         "A RAG-backed analytics platform that turns raw Excel and CSV exports into dashboards, written insight and generated PPT reports for executive review.",
       techStack: ["Azure OpenAI", "RAG", "FastAPI", "React", "PostgreSQL", "Pandas", "Docker"],
-      githubLink: "https://github.com/Hydra-Of-Malice/orquis-placeholder",
+      githubLink: "https://github.com/Hydra-Of-Malice/orquis.ai",
       year: "2026",
       featured: true,
       metric: { value: "CSV → PPT", label: "automated reporting" },
@@ -189,29 +178,9 @@ export const portfolioData = {
       description:
         "A custom YOLOv8 model trained on 1,500+ annotated images, wrapped in a Flask API and a React operator console for live camera inference.",
       techStack: ["YOLOv8", "React", "Flask", "OpenCV"],
-      githubLink: "https://github.com/Hydra-Of-Malice/biomedical-waste-placeholder",
+      githubLink: "https://github.com/Hydra-Of-Malice/biomedical-waste-segmentation",
       year: "2025",
       metric: { value: "91%", label: "detection accuracy" },
-    },
-    {
-      title: "Customer Analytics Framework",
-      blurb: "Eight models, one segmentation pipeline.",
-      description:
-        "An ensemble pipeline combining KMeans segmentation, FP-Growth basket analysis, HMM sequence modelling and Random Forest scoring over 10,000+ customer records.",
-      techStack: ["KMeans", "FP-Growth", "HMM", "Random Forest", "Scikit-learn"],
-      githubLink: "https://github.com/Hydra-Of-Malice/customer-analytics-placeholder",
-      year: "2025",
-      metric: { value: "10k+", label: "records modelled" },
-    },
-    {
-      title: "AI Teacher — Multi-Document RAG",
-      blurb: "Answers that cite their sources.",
-      description:
-        "A citation-grounded Q&A assistant over multi-document corpora, using FAISS retrieval and LangChain orchestration behind a real-time chat interface.",
-      techStack: ["FAISS", "LangChain", "Node.js", "MongoDB", "React"],
-      githubLink: "https://github.com/Hydra-Of-Malice/ai-teacher-placeholder",
-      year: "2025",
-      metric: { value: "Grounded", label: "citation-backed answers" },
     },
   ] satisfies Project[],
 
