@@ -182,6 +182,27 @@ export const portfolioData = {
       year: "2025",
       metric: { value: "91%", label: "detection accuracy" },
     },
+    {
+      title: "MedRail — Agent-Payable Clinical Services",
+      blurb: "Clinical APIs an AI agent can discover, pay for, and use — no API key.",
+      description:
+        "A pay-per-call clinical services layer for AI agents, built on the x402 protocol and settled in USDC on Algorand. Symptom triage and drug-interaction checks are sold per call with no signup; a third endpoint releases a patient's record only against a consent grant the patient signed on-chain themselves, with every access appended to an immutable audit trail. Built for the Algorand Foundation Global x402 Challenge.",
+      techStack: ["TypeScript", "Python", "Algorand", "x402", "Docker"],
+      githubLink: "https://github.com/Hydra-Of-Malice/Medrail",
+      liveLink: "https://medrail-1.onrender.com/",
+      year: "2026",
+      metric: { value: "x402", label: "pay-per-call, zero API keys" },
+    },
+    {
+      title: "DriftWatch — Self-Healing Data Contracts",
+      blurb: "Catches when a scraped page's meaning changes, not just its shape.",
+      description:
+        "Turns the public pages a product silently depends on — pricing, API docs, rate limits — into versioned data contracts that repair themselves on Bright Data's Scraper Studio. A semantic contract engine classifies drift into five classes, from harmless copyedits to a unit or scope flip that leaves extraction 'succeeding' with the wrong meaning, and quarantines bad data before it reaches a dashboard. Built for the WeMakeDevs x Bright Data 'Into the Scrape-Verse' hackathon.",
+      techStack: ["Python", "Flask", "JavaScript", "Bright Data Scraper Studio"],
+      githubLink: "https://github.com/Hydra-Of-Malice/Driftwatch",
+      year: "2026",
+      metric: { value: "5-class", label: "drift taxonomy" },
+    },
   ] satisfies Project[],
 
   skills: {
