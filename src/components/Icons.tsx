@@ -1,130 +1,92 @@
 import type { SVGProps } from 'react';
 
-/**
- * Every icon is a 24-box drawn with `currentColor`, so the dock, badges and
- * buttons can size and colour them from the outside.
- */
-type IconProps = SVGProps<SVGSVGElement>;
+type P = SVGProps<SVGSVGElement>;
 
-function Stroke({ children, ...props }: IconProps) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.75}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-      {...props}
-    >
-      {children}
-    </svg>
-  );
-}
-
-export const Home = (p: IconProps) => (
-  <Stroke {...p}>
-    <path d="M3 10.5 12 3.5l9 7v9a1 1 0 0 1-1 1h-4.5V15h-7v5.5H4a1 1 0 0 1-1-1z" />
-  </Stroke>
-);
-
-export const User = (p: IconProps) => (
-  <Stroke {...p}>
-    <circle cx="12" cy="8" r="3.75" />
-    <path d="M4.5 20.5v-.75a7.5 7.5 0 0 1 15 0v.75" />
-  </Stroke>
-);
-
-export const Briefcase = (p: IconProps) => (
-  <Stroke {...p}>
-    <rect x="2.75" y="7.25" width="18.5" height="13" rx="2.25" />
-    <path d="M8.5 7.25V5.5a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v1.75M2.75 12.5h18.5" />
-  </Stroke>
-);
-
-export const Layers = (p: IconProps) => (
-  <Stroke {...p}>
-    <path d="m12 3 8.5 4.75L12 12.5 3.5 7.75z" />
-    <path d="m3.5 12 8.5 4.75L20.5 12M3.5 16.25 12 21l8.5-4.75" />
-  </Stroke>
-);
-
-export const Award = (p: IconProps) => (
-  <Stroke {...p}>
-    <circle cx="12" cy="9" r="5.5" />
-    <path d="m8.5 13.75-1.25 6.75L12 18l4.75 2.5-1.25-6.75" />
-  </Stroke>
-);
-
-export const Terminal = (p: IconProps) => (
-  <Stroke {...p}>
-    <rect x="2.75" y="4.25" width="18.5" height="15.5" rx="2.25" />
-    <path d="m7.5 10 2.5 2-2.5 2M13 14.5h3.5" />
-  </Stroke>
-);
-
-export const Cap = (p: IconProps) => (
-  <Stroke {...p}>
-    <path d="M12 3.5 2.75 8 12 12.5 21.25 8z" />
-    <path d="M6.5 10.25V15c0 1.66 2.46 3 5.5 3s5.5-1.34 5.5-3v-4.75M21.25 8v5.5" />
-  </Stroke>
-);
-
-export const Mail = (p: IconProps) => (
-  <Stroke {...p}>
-    <rect x="2.75" y="4.75" width="18.5" height="14.5" rx="2.25" />
-    <path d="m3.5 7 8.5 6 8.5-6" />
-  </Stroke>
-);
-
-export const ArrowUpRight = (p: IconProps) => (
-  <Stroke {...p}>
-    <path d="M7.5 16.5 16.5 7.5M8.75 7.5h7.75v7.75" />
-  </Stroke>
-);
-
-export const Code = (p: IconProps) => (
-  <Stroke {...p}>
-    <path d="m8.5 17.5-5-5.5 5-5.5M15.5 6.5l5 5.5-5 5.5" />
-  </Stroke>
-);
-
-export const Sun = (p: IconProps) => (
-  <Stroke {...p}>
-    <circle cx="12" cy="12" r="4" />
-    <path d="M12 2.75v2M12 19.25v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2.75 12h2M19.25 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
-  </Stroke>
-);
-
-export const Moon = (p: IconProps) => (
-  <Stroke {...p}>
-    <path d="M20.5 13.4A8.5 8.5 0 1 1 10.6 3.5a6.7 6.7 0 0 0 9.9 9.9z" />
-  </Stroke>
-);
-
-export const MapPin = (p: IconProps) => (
-  <Stroke {...p}>
-    <path d="M19 10.5c0 5.25-7 11-7 11s-7-5.75-7-11a7 7 0 1 1 14 0z" />
-    <circle cx="12" cy="10.25" r="2.5" />
-  </Stroke>
-);
-
-export const Clock = (p: IconProps) => (
-  <Stroke {...p}>
-    <circle cx="12" cy="12" r="8.75" />
-    <path d="M12 7v5.25l3.25 2" />
-  </Stroke>
-);
-
-export const Github = (p: IconProps) => (
-  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden {...p}>
-    <path d="M12 .5C5.37.5 0 5.87 0 12.5c0 5.3 3.44 9.8 8.21 11.39.6.11.82-.26.82-.58l-.02-2.03c-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.09-.75.08-.73.08-.73 1.21.08 1.84 1.24 1.84 1.24 1.07 1.84 2.81 1.31 3.5 1 .11-.78.42-1.31.76-1.61-2.67-.3-5.47-1.34-5.47-5.96 0-1.32.47-2.39 1.24-3.23-.13-.3-.54-1.53.12-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 6.01 0c2.29-1.55 3.3-1.23 3.3-1.23.66 1.65.25 2.88.12 3.18.77.84 1.24 1.91 1.24 3.23 0 4.63-2.81 5.65-5.49 5.95.43.37.82 1.1.82 2.22l-.01 3.29c0 .32.21.7.82.58A12.01 12.01 0 0 0 24 12.5C24 5.87 18.63.5 12 .5z" />
+/** The little arrow drawn before "GET RÉSUMÉ". */
+export const DecorArrow = (p: P) => (
+  <svg viewBox="0 0 15 13" fill="none" aria-hidden className="capabilities-button-component__decor-image" {...p}>
+    <path d="M1 6.5h12M8.5 1.5l5 5-5 5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
   </svg>
 );
 
-export const Linkedin = (p: IconProps) => (
-  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden {...p}>
-    <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.07 2.07 0 1 1 0-4.13 2.07 2.07 0 0 1 0 4.13zm1.78 13.02H3.55V9h3.57v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.72V1.72C24 .77 23.2 0 22.22 0z" />
+/** One of the four arcs that fan out beside "Got Project?". */
+export const Arc = (p: P) => (
+  <svg viewBox="0 0 53 186" fill="none" aria-hidden {...p}>
+    <path
+      d="M52 185.2C30.8 173.4 0 140.8 0 92.6C0 44 30.8 11.4 52 0L53 1.6C32 13.2 2.2 46 2.2 92.6C2.2 139.8 32 171.8 53 183.6L52 185.2Z"
+      fill="currentColor"
+    />
+  </svg>
+);
+
+export const Plus = (p: P) => (
+  <svg viewBox="0 0 15 15" fill="none" aria-hidden {...p}>
+    <path d="M7.5 1v13M1 7.5h13" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+  </svg>
+);
+
+export const Tap = (p: P) => (
+  <svg viewBox="0 0 24 24" fill="none" aria-hidden {...p}>
+    <path
+      d="M9 11V5.5a1.5 1.5 0 0 1 3 0V11m0-2a1.5 1.5 0 0 1 3 0v2m0-1a1.5 1.5 0 0 1 3 0v6a5 5 0 0 1-5 5h-1.2a5 5 0 0 1-4.1-2.1L4.3 15a1.4 1.4 0 0 1 2.2-1.7L9 16"
+      stroke="currentColor"
+      strokeWidth="1.3"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+export const Star = ({ size = 40, ...p }: P & { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 40 39" fill="none" aria-hidden {...p}>
+    <path
+      d="m20.055 0 1.365 18.135L39.555 19.5 21.42 20.865 20.055 39 18.69 20.865.555 19.5l18.135-1.365L20.055 0Z"
+      fill="#191919"
+    />
+  </svg>
+);
+
+/** The bracket-like glyph above and below the contact block. */
+export const ContactBracket = (p: P) => (
+  <svg viewBox="0 0 43 22" fill="none" aria-hidden className="contact-links__icon" {...p}>
+    <path d="M1 21C1 9.954 9.954 1 21 1h1c11.046 0 20 8.954 20 20" stroke="currentColor" strokeWidth="1.2" />
+    <circle cx="21.5" cy="21" r="1.5" fill="currentColor" />
+  </svg>
+);
+
+export const Linkedin = (p: P) => (
+  <svg viewBox="0 0 16 17" fill="none" aria-hidden {...p}>
+    <path
+      d="M3.6 5.6H.3v10.7h3.3V5.6ZM2 4.2a1.9 1.9 0 1 0 0-3.8 1.9 1.9 0 0 0 0 3.8Zm13.7 6.2c0-3.2-1.7-4.9-4.1-4.9-1.8 0-2.7 1-3.2 1.8V5.6H5.2v10.7h3.3v-5.3c0-1.4.3-2.7 2-2.7 1.7 0 1.9 1.6 1.9 2.8v5.2h3.3v-5.9Z"
+      fill="currentColor"
+    />
+  </svg>
+);
+
+export const Github = (p: P) => (
+  <svg viewBox="0 0 18 18" fill="none" aria-hidden {...p}>
+    <path
+      d="M9 .8a8.4 8.4 0 0 0-2.7 16.4c.4.1.6-.2.6-.4v-1.5c-2.3.5-2.8-1-2.8-1-.4-1-.9-1.2-.9-1.2-.8-.5 0-.5 0-.5.9.1 1.3.9 1.3.9.7 1.3 2 .9 2.5.7.1-.6.3-.9.5-1.1-1.9-.2-3.8-.9-3.8-4.2 0-.9.3-1.7.9-2.3-.1-.2-.4-1.1.1-2.2 0 0 .7-.2 2.3.9a8 8 0 0 1 4.2 0c1.6-1.1 2.3-.9 2.3-.9.5 1.1.2 2 .1 2.2.6.6.9 1.4.9 2.3 0 3.3-2 4-3.9 4.2.3.3.6.8.6 1.6v2.3c0 .2.2.5.6.4A8.4 8.4 0 0 0 9 .8Z"
+      fill="currentColor"
+    />
+  </svg>
+);
+
+export const Leetcode = (p: P) => (
+  <svg viewBox="0 0 18 18" fill="none" aria-hidden {...p}>
+    <path
+      d="M11.2 1.2 5 7.5a4.6 4.6 0 0 0 0 6.4l2.5 2.5a4.3 4.3 0 0 0 6.1 0l1.6-1.6a1 1 0 0 0-1.5-1.5l-1.6 1.6a2.3 2.3 0 0 1-3.2 0L6.4 12.4a2.6 2.6 0 0 1 0-3.5l6.3-6.2a1 1 0 1 0-1.5-1.5Z"
+      fill="currentColor"
+    />
+    <path d="M7.8 10.6h7.6a1 1 0 1 0 0-2H7.8a1 1 0 1 0 0 2Z" fill="currentColor" />
+  </svg>
+);
+
+export const Mail = (p: P) => (
+  <svg viewBox="0 0 18 18" fill="none" aria-hidden {...p}>
+    <path
+      d="M2 3.5h14a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1Zm0 1.7v.4l7 4.4 7-4.4v-.4L9 9.6 2 5.2Z"
+      fill="currentColor"
+    />
   </svg>
 );

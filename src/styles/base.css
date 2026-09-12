@@ -1,0 +1,290 @@
+/* ---------------------------------------------------------------------------
+   Tokens
+
+   Lifted from the reference: near-pure black and white, one neon accent, four
+   type roles. The whole page is built from the four roles —
+     title      Archivo 900, uppercase, huge
+     cursive    Instrument Serif italic, the counterpoint to the title
+     text       Inter, the body
+     typewriter DM Mono, uppercase, every label and small caption
+--------------------------------------------------------------------------- */
+:root {
+  --side-gutters: 0.75rem;
+  --header-height: 77px;
+  --c-brand-primary: #00fb96;
+  --c-brand-secondary: #dbdcca;
+  --c-bg-primary: #000;
+  --c-bg-secondary: #fff;
+  --c-bg-aims: #161616;
+  --fz-base: 16;
+  --c-font-primary: #000;
+  --c-font-secondary: #fff;
+  --c-font-error: #e6b0b0;
+  --font-title: 'Archivo', Arial, sans-serif;
+  --font-text: 'Inter', Helvetica, Arial, sans-serif;
+  --font-cursive: 'Instrument Serif', Georgia, serif;
+  --font-typewriter: 'DM Mono', ui-monospace, monospace;
+  --c-border-default: #636262;
+  --c-border: 1px solid var(--c-border-default);
+  --c-border-grid: #4141413b;
+  --cursor-dot: var(--c-brand-primary);
+  --anim-default-time: 0.75s;
+  --ease-branding: cubic-bezier(0, 0, 0.1, 1);
+  --ease-latest: cubic-bezier(0.785, 0.135, 0.15, 0.86);
+  --ease-popup: cubic-bezier(0.34, 0, 0.3, 1);
+  --ease-tooltip: cubic-bezier(0.5, 0, 0.05, 1);
+}
+@media (min-width: 768px) {
+  :root {
+    --side-gutters: 1rem;
+  }
+}
+@media (max-width: 767px) {
+  :root {
+    --header-height: 4rem;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Reset
+--------------------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+* {
+  margin: 0;
+  padding: 0;
+}
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+body,
+html {
+  overscroll-behavior: none;
+  /* Belt and braces: a decorative element parked off-canvas must never make the
+     page scroll sideways. On <body> alone this does not reliably reach the
+     viewport, so it is set on the root element too. */
+  overflow-x: clip;
+}
+body {
+  min-height: 100vh;
+  color: var(--c-font-primary);
+  background-color: var(--c-bg-secondary);
+  font-family: var(--font-text);
+  font-size: 1rem;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: clip;
+}
+body.loading {
+  overflow: hidden;
+}
+ul,
+ol {
+  list-style: none;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+img,
+svg,
+video,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+button:focus {
+  outline: 0;
+}
+/* The brand green is only 1.4:1 on white, so the ring is drawn in the ink
+   colour with a contrasting halo that works on both grounds. */
+:focus-visible {
+  outline: 2px solid var(--c-font-primary);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 5px var(--c-brand-primary);
+  border-radius: 2px;
+}
+.aims :focus-visible,
+.stickers :focus-visible,
+.popup :focus-visible,
+.header__navigation :focus-visible {
+  outline-color: var(--c-font-secondary);
+}
+h1,
+h2,
+h3 {
+  font-weight: inherit;
+  font-size: inherit;
+}
+::selection {
+  background: var(--c-brand-primary);
+  color: #000;
+}
+.hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.no-scroll {
+  position: fixed;
+  overflow: hidden;
+  width: 100%;
+}
+/* Desktop / mobile visibility. `is-desktop` is set on <html> from the pointer
+   media query so hover-only UI can be swapped for tap-to-open UI. */
+@media (min-width: 768px) {
+  .visible-mobile {
+    display: none !important;
+  }
+}
+html.is-desktop .hidden-desktop {
+  display: none !important;
+}
+html.is-mobile .visible-desktop {
+  display: none !important;
+}
+
+/* ---------------------------------------------------------------------------
+   Layout + type roles
+--------------------------------------------------------------------------- */
+.container {
+  margin-inline: auto;
+  padding-inline: var(--side-gutters);
+  width: 100%;
+}
+
+.title {
+  text-transform: uppercase;
+  font-family: var(--font-title);
+  font-size: max(12.25vw, 80px);
+  font-weight: 900;
+  line-height: 0.84;
+  letter-spacing: -0.02em;
+}
+.title--cursive {
+  font-family: var(--font-cursive);
+  font-size: clamp(7.5rem, 15.1vw, 18.125rem);
+  font-weight: 400;
+  font-style: italic;
+  line-height: 0.88;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--c-font-secondary);
+  -webkit-text-stroke: 1px var(--c-font-primary);
+}
+.title--combined {
+  display: inline-block;
+}
+.title.title-js {
+  transform: scaleX(1.1);
+  opacity: 0;
+}
+.title-secondary {
+  font-family: var(--font-text);
+  font-size: clamp(2.5rem, 4.1667vw, 5rem);
+  font-weight: 500;
+  line-height: 0.88;
+  letter-spacing: -0.02em;
+}
+.title-secondary--cursive {
+  font-family: var(--font-cursive);
+  font-size: clamp(3.125rem, 5.2083vw, 6.25rem);
+  font-weight: 400;
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: 0;
+}
+.subtitle {
+  text-transform: uppercase;
+  font-size: clamp(1.375rem, 1.4583vw, 1.75rem);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.015em;
+}
+.text {
+  max-width: 19.25rem;
+  font-size: 1.125rem;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+}
+.text-small {
+  font-size: 0.875rem;
+  font-family: var(--font-typewriter);
+  text-transform: uppercase;
+  line-height: 1;
+  font-style: normal;
+  font-weight: 500;
+}
+.text-small--xl {
+  font-size: 1rem;
+  line-height: 1.1;
+}
+
+/* SplitText wraps lines in `.line`; every reveal is a mask on that line. */
+.line {
+  height: fit-content;
+  overflow: hidden;
+}
+
+/* The six white panels that wipe off a big title once it's in view. */
+.title__box {
+  position: relative;
+  width: auto;
+  max-width: 100%;
+}
+.curtains {
+  position: absolute;
+  top: -10%;
+  left: 0;
+  width: 100%;
+  height: 110%;
+  display: flex;
+  z-index: 5;
+  pointer-events: none;
+}
+.curtains span {
+  width: 16.66%;
+  height: 100%;
+  display: block;
+  background-color: var(--c-bg-secondary);
+  transform: scaleX(1);
+}
+/* ---------------------------------------------------------------------------
+   Reduced motion
+
+   Every looping keyframe animation (the logo mark, the hero dots, the vision
+   rings, the sticker flash) and every transition is collapsed to an instant
+   state change. The WebGL scenes, the footer canvas and smooth scrolling are
+   switched off in JS; GSAP's global timeline is sped up so entrances land on
+   their end state. See src/lib/device.ts.
+--------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    transition-delay: 0ms !important;
+  }
+}

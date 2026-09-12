@@ -1,148 +1,64 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { DESKTOP_QUERY, isDesktopDevice, prefersReducedMotion, REDUCED_MOTION_QUERY } from './device';
 
-export type Theme = 'dark' | 'light';
-
-/** Reads/writes the `data-theme` attribute that drives every colour token. */
-export function useTheme() {
-  const [theme, setThemeState] = useState<Theme>(
-    () => (document.documentElement.dataset.theme as Theme) || 'light',
-  );
-
-  const toggle = useCallback(() => {
-    const next: Theme = theme === 'dark' ? 'light' : 'dark';
-    document.documentElement.dataset.theme = next;
-    try {
-      localStorage.setItem('theme', next);
-    } catch {
-      // Private-mode browsers can refuse storage; the attribute still applies.
-    }
-    setThemeState(next);
-  }, [theme]);
-
-  return { theme, toggle };
+/** Subscribe to a media query and re-render when it flips. */
+function useMediaQuery(query: string, initial: () => boolean) {
+  const [matches, setMatches] = useState(initial);
+  useEffect(() => {
+    const mq = window.matchMedia(query);
+    const update = () => setMatches(mq.matches);
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
+  }, [query]);
+  return matches;
 }
 
 /**
- * Marks an element with `data-revealed` the first time it scrolls into view,
- * which is what triggers the `.reveal` enter animation.
+ * Whether the hover-driven UI should run. Re-evaluated when the query flips, so
+ * a resize or a tablet rotation across the boundary re-initialises the page
+ * rather than leaving desktop behaviour on a touch layout.
  */
-export function useReveal<T extends HTMLElement>() {
-  const ref = useRef<T>(null);
+export const useIsDesktop = () => useMediaQuery(DESKTOP_QUERY, isDesktopDevice);
 
+/** Whether the visitor has asked for reduced motion. */
+export const useReducedMotion = () => useMediaQuery(REDUCED_MOTION_QUERY, prefersReducedMotion);
+
+/**
+ * Resolves once the webfonts have settled, so SplitText measures real line
+ * boxes instead of the fallback face. Races a timeout in case font loading
+ * never settles — the page must never be held back by it.
+ */
+export function useFontsReady(timeoutMs = 2000) {
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    let done = false;
+    const finish = () => {
+      if (!done) {
+        done = true;
+        setReady(true);
+      }
+    };
+    const t = setTimeout(finish, timeoutMs);
+    if (document.fonts) document.fonts.ready.then(finish).catch(finish);
+    else finish();
+    return () => clearTimeout(t);
+  }, [timeoutMs]);
+  return ready;
+}
+
+/**
+ * True while `ref` is on screen (plus `margin`). The WebGL canvases use this
+ * to stop rendering when scrolled away.
+ */
+export function useInView<T extends Element>(ref: React.RefObject<T | null>, margin = '20%') {
+  const [inView, setInView] = useState(false);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-
-    // `.reveal` starts at opacity 0, so without an observer the section would
-    // never appear. Show it outright instead.
-    if (!('IntersectionObserver' in window)) {
-      el.dataset.revealed = '';
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry.isIntersecting) return;
-        el.dataset.revealed = '';
-        observer.disconnect();
-      },
-      // Fire slightly before the element reaches the fold.
-      { rootMargin: '0px 0px -10% 0px' },
-    );
-
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
-  return ref;
-}
-
-/** Live clock for a given IANA timezone, updated every half minute. */
-export function useLocalTime(timeZone: string) {
-  const format = useCallback(
-    () =>
-      new Intl.DateTimeFormat('en-GB', {
-        hour: '2-digit',
-        minute: '2-digit',
-        timeZone,
-      }).format(new Date()),
-    [timeZone],
-  );
-
-  const [time, setTime] = useState(format);
-
-  useEffect(() => {
-    const id = setInterval(() => setTime(format()), 30_000);
-    return () => clearInterval(id);
-  }, [format]);
-
-  return time;
-}
-
-/** True once the page has scrolled past `offset` pixels. */
-export function useScrolled(offset = 24) {
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > offset);
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, [offset]);
-
-  return scrolled;
-}
-
-/**
- * The id of the section currently under the top third of the viewport, which
- * is what the dock highlights.
- */
-export function useActiveSection(ids: string[]) {
-  const [active, setActive] = useState(ids[0]);
-  // Array identity changes every render at the call site; the contents don't.
-  const key = ids.join('|');
-
-  useEffect(() => {
-    const sectionIds = key.split('|');
-
-    const onScroll = () => {
-      const line = window.innerHeight * 0.35;
-      let current = sectionIds[0];
-
-      for (const id of sectionIds) {
-        const top = document.getElementById(id)?.getBoundingClientRect().top;
-        if (top !== undefined && top <= line) current = id;
-      }
-
-      // The last section is usually too short to ever cross the line.
-      const atBottom =
-        window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 8;
-      if (atBottom) current = sectionIds[sectionIds.length - 1];
-
-      setActive(current);
-    };
-
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
-    return () => {
-      window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', onScroll);
-    };
-  }, [key]);
-
-  return active;
-}
-
-/** Steps through `items` on an interval — used by the hero's rotating role. */
-export function useRotating<T>(items: readonly T[], intervalMs = 2600) {
-  const [index, setIndex] = useState(0);
-
-  useEffect(() => {
-    if (items.length < 2) return;
-    const id = setInterval(() => setIndex((i) => (i + 1) % items.length), intervalMs);
-    return () => clearInterval(id);
-  }, [items.length, intervalMs]);
-
-  return { item: items[index], index };
+    const io = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), { rootMargin: margin });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [ref, margin]);
+  return inView;
 }
