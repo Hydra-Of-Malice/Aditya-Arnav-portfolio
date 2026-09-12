@@ -1,70 +1,161 @@
-import { portfolioData } from '../data';
-import { useLocalTime } from '../lib/hooks';
-import * as Icon from './Icons';
-import Section from './Section';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { ScrollTrigger } from '../lib/gsap';
+import { contactForm, person } from '../site';
+import ContactLinks from './ContactLinks';
 
-const { personalInfo } = portfolioData;
+/**
+ * The reference's "Let's Talk" page, folded into the home page as a section.
+ * Submitting opens a pre-filled mail; there is no backend.
+ */
+export default function Contact() {
+  const root = useRef<HTMLDivElement>(null);
+  const [v, setV] = useState({ name: '', company: '', site: '', message: '', email: '', phone: '' });
+  const [done, setDone] = useState(false);
+  const [showErrors, setShowErrors] = useState(false);
 
-const channels = [
-  { label: 'GitHub', handle: 'Hydra-Of-Malice', href: personalInfo.github, icon: Icon.Github },
-  { label: 'LinkedIn', handle: 'aditya-arnav', href: personalInfo.linkedin, icon: Icon.Linkedin },
-  { label: 'LeetCode', handle: 'HydraOfMalice', href: personalInfo.leetcode, icon: Icon.Code },
-];
+  const ready = v.name.trim() && v.company.trim() && /^\S+@\S+\.\S+$/.test(v.email);
 
-export function Contact() {
-  const time = useLocalTime(personalInfo.timezone);
+  useEffect(() => {
+    const el = root.current!;
+    const st = ScrollTrigger.create({ trigger: el, start: 'top 70%', once: true, onEnter: () => el.classList.add('--animate') });
+    return () => st.kill();
+  }, []);
+
+  const set = (k: keyof typeof v) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+    setV((s) => ({ ...s, [k]: e.target.value }));
+
+  const invalid = {
+    name: !v.name.trim(),
+    company: !v.company.trim(),
+    email: !/^\S+@\S+\.\S+$/.test(v.email),
+  };
+
+  const submit = (e: FormEvent) => {
+    e.preventDefault();
+    if (!ready) {
+      setShowErrors(true);
+      const first = (['name', 'company', 'email'] as const).find((k) => invalid[k]);
+      if (first) root.current?.querySelector<HTMLElement>(`#c-${first === 'company' ? 'company' : first}`)?.focus();
+      return;
+    }
+    const subject = encodeURIComponent(`Project enquiry from ${v.name} (${v.company})`);
+    const body = encodeURIComponent(
+      [
+        `Hi ${person.name.split(' ')[0]},`,
+        '',
+        v.message || '(no brief yet)',
+        '',
+        `— ${v.name}, ${v.company}${v.site ? ` (https://${v.site})` : ''}`,
+        `Email: ${v.email}${v.phone ? `\nPhone: ${v.phone}` : ''}`,
+      ].join('\n'),
+    );
+    window.open(`mailto:${person.email}?subject=${subject}&body=${body}`, '_self');
+    setDone(true);
+  };
+
+  const item = (key: keyof typeof v, id: string, label: string, type = 'text') => {
+    const bad = showErrors && invalid[key as keyof typeof invalid];
+    return (
+      <div className={`form-contact__item js-form-item ${v[key].trim() ? 'active' : ''} ${bad ? 'error' : ''}`}>
+        <label className="form-contact__label js-form-item-label" htmlFor={id}>
+          {label}
+        </label>
+        <input
+          autoComplete="off"
+          className="form-contact__input js-form-item-input"
+          id={id}
+          type={type}
+          value={v[key]}
+          onChange={set(key)}
+          required
+          aria-invalid={bad || undefined}
+        />
+      </div>
+    );
+  };
 
   return (
-    <Section id="contact" eyebrow="07 / Contact" title="Let's talk">
-      {/* The one place on the page with a lit surface — it should read as the
-          end of the argument. */}
-      <div
-        className="card relative overflow-hidden p-6 text-center sm:p-10"
-        style={{
-          backgroundImage:
-            'radial-gradient(120% 100% at 50% 0%, var(--glow-a), transparent 60%)',
-        }}
-      >
-        <h3 className="text-xl font-semibold tracking-tight sm:text-2xl">
-          Happy to talk about inference infrastructure, agent architectures, or anything that has
-          to stay up at 3am.
-        </h3>
-
-        <p className="mx-auto mt-3 max-w-[30rem] text-dim">
-          I read everything that lands in my inbox and usually reply within a day.
-        </p>
-
-        <p className="mt-6">
-          <a href={`mailto:${personalInfo.email}`} className="btn btn-primary">
-            <Icon.Mail className="h-4 w-4" />
-            {personalInfo.email}
-          </a>
-        </p>
-
-        <ul className="mt-8 flex flex-wrap items-center justify-center gap-2">
-          {channels.map(({ label, handle, href, icon: Glyph }) => (
-            <li key={label}>
-              <a href={href} target="_blank" rel="noreferrer" className="btn">
-                <Glyph className="h-3.5 w-3.5" />
-                {handle}
-              </a>
-            </li>
-          ))}
-        </ul>
-
-        <p className="meta mt-8 flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
-          <span className="inline-flex items-center gap-1.5">
-            <Icon.MapPin className="h-3.5 w-3.5" />
-            {personalInfo.location}
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <Icon.Clock className="h-3.5 w-3.5" />
-            {time} local
-          </span>
-        </p>
+    <div className="block-form" id="contact" ref={root}>
+      <div className="block-form__inner">
+        <div className="block-form__head">
+          <h2 className="block-form__title" aria-label={contactForm.title.join(' ')}>
+            <span className="title-secondary">{contactForm.title[0]}</span>
+            <span className="title-secondary--cursive">{contactForm.title[1]}</span>
+          </h2>
+        </div>
+        <div className="block-form__content--right">
+          <ContactLinks />
+        </div>
+        <div className={`block-form__content-wrapper js-block-form ${done ? '--success' : ''}`}>
+          <form className="block-form__content form-contact js-form-contact" onSubmit={submit} noValidate>
+            <div className="form-contact__inner">
+              <fieldset className="form-contact__group">
+                {item('name', 'c-name', `*Hello ${person.name.split(' ')[0]}, my name is...`)}
+                <div
+                  className={`form-contact__item form-contact__item--company js-form-item ${v.company.trim() ? 'active' : ''} ${showErrors && invalid.company ? 'error' : ''}`}
+                >
+                  <label className="form-contact__label js-form-item-label" htmlFor="c-company">
+                    *My company name is...
+                  </label>
+                  <input autoComplete="off" className="form-contact__input js-form-item-input" id="c-company" type="text" value={v.company} onChange={set('company')} />
+                  {/* The optional site sits under the company name in the small
+                      mono face, so it reads as a footnote rather than a second
+                      headline field. */}
+                  <div className="company-wrap">
+                    <label className="company-label" htmlFor="c-site">
+                      Current site https://
+                    </label>
+                    <input autoComplete="off" className="company-input" id="c-site" type="text" value={v.site} onChange={set('site')} />
+                  </div>
+                </div>
+              </fieldset>
+              <fieldset className="form-contact__group">
+                <div className={`form-contact__item js-form-item ${v.message.trim() ? 'active' : ''}`}>
+                  <label className="form-contact__label js-form-item-label" htmlFor="c-message">
+                    Now, a little about my project...
+                  </label>
+                  <textarea className="js-form-item-input" id="c-message" maxLength={1000} value={v.message} onChange={set('message')} />
+                </div>
+              </fieldset>
+              <fieldset className="form-contact__group">
+                <div
+                  className={`form-contact__item js-form-item ${v.email.trim() || v.phone.trim() ? 'active' : ''} ${showErrors && invalid.email ? 'error' : ''}`}
+                >
+                  <div className="form-contact__label">*you can contact me...</div>
+                  <div className="form-contact__columns">
+                    <div className="form-contact__column">
+                      <label className="form-contact__column-label text-small" htmlFor="c-email">
+                        My Email:
+                      </label>
+                      <input autoComplete="off" className="form-contact__input" id="c-email" type="email" value={v.email} onChange={set('email')} />
+                    </div>
+                    <div className="form-contact__column">
+                      <label className="form-contact__column-label text-small" htmlFor="c-phone">
+                        My Phone:
+                      </label>
+                      <input autoComplete="off" className="form-contact__input" id="c-phone" type="tel" placeholder="(000) 000 0000" value={v.phone} onChange={set('phone')} />
+                    </div>
+                  </div>
+                </div>
+                <p className="form-contact__note" role="status">
+                  {showErrors && !ready
+                    ? 'Please add your name, your company and a valid email address.'
+                    : 'Submitting opens your mail client with everything pre-filled.'}
+                </p>
+              </fieldset>
+            </div>
+            <div className="form-contact__footer">
+              <button className={`form-contact__btn js-form-contact-cta ${ready ? 'is-form-ready' : ''}`} type="submit">
+                <span className="btn-title">Submit</span>
+              </button>
+            </div>
+          </form>
+          <div className="block-form__success">
+            <div className="block-form__success-title title">{contactForm.success[0]}</div>
+            <div className="block-form__success-subtitle subtitle">{contactForm.success[1]}</div>
+          </div>
+        </div>
       </div>
-    </Section>
+    </div>
   );
 }
-
-export default Contact;

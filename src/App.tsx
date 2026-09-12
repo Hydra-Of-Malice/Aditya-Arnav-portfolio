@@ -1,66 +1,90 @@
 import { useEffect } from 'react';
 import { Analytics } from '@vercel/analytics/react';
-import About from './components/About';
+import { ScrollTrigger } from './lib/gsap';
+import { addDeviceClassToBody } from './lib/device';
+import { useFontsReady, useIsDesktop } from './lib/hooks';
+import { waitForLoaderComplete } from './lib/loader';
+import { scrollToHash, startSmoothScroll } from './lib/smoothScroll';
+import Cases from './components/Cases';
 import Contact from './components/Contact';
-import Dock from './components/Dock';
-import Education from './components/Education';
-import Experience from './components/Experience';
+import CtaBand from './components/CtaBand';
+import Cursor from './components/Cursor';
+import Features from './components/Features';
 import Footer from './components/Footer';
+import Header from './components/Header';
 import Hero from './components/Hero';
-import Navbar from './components/Navbar';
-import Projects from './components/Projects';
-import Research from './components/Research';
-import Skills from './components/Skills';
+import Identity from './components/Identity';
+import Loader from './components/Loader';
+import Numbers from './components/Numbers';
+import ResumePopup from './components/ResumePopup';
+import Stickers from './components/Stickers';
+import Vision from './components/Vision';
+import WhatIDo from './components/WhatIDo';
 
-function App() {
-  // The browser resolves a deep link like /#projects before React has mounted
-  // the sections, so it lands at the top. Re-apply it once they exist.
+export default function App() {
+  // Every section branches on this at setup time — the pinned mobile Features
+  // list, the hover-only scenes, the cursor-following tooltips. Keying <main>
+  // on it remounts them when the query flips, so a resize or a tablet rotation
+  // across the boundary rebuilds them for the layout they are now in instead
+  // of leaving desktop behaviour running on a touch device.
+  const desktop = useIsDesktop();
+  // Held back only behind the loader, so SplitText measures the real faces.
+  const fontsReady = useFontsReady();
+
   useEffect(() => {
-    const hash = window.location.hash;
-    if (!hash) return;
-    requestAnimationFrame(() => {
-      // 'instant' overrides the smooth scroll-behavior set on <html>.
-      document.querySelector(hash)?.scrollIntoView({ behavior: 'instant' });
+    addDeviceClassToBody();
+    let stop = () => {};
+    let cancelled = false;
+
+    waitForLoaderComplete().then(() => {
+      if (cancelled) return;
+      stop = startSmoothScroll();
+      ScrollTrigger.refresh();
     });
+
+    return () => {
+      cancelled = true;
+      stop();
+    };
+  }, [desktop]);
+
+  useEffect(() => {
+    // Honour a deep link like /#projects once the page can actually scroll.
+    if (!window.location.hash) return;
+    let cancelled = false;
+    waitForLoaderComplete().then(() => {
+      if (cancelled) return;
+      setTimeout(() => scrollToHash(window.location.hash), 300);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return (
     <>
-      {/* Two soft lights behind the top of the page, fixed so they never scroll
-          into a hard edge. */}
-      <div
-        aria-hidden
-        className="pointer-events-none fixed inset-0 -z-10"
-        style={{
-          backgroundImage:
-            'radial-gradient(60rem 30rem at 20% -10%, var(--glow-a), transparent 70%),' +
-            'radial-gradient(45rem 25rem at 90% 0%, var(--glow-b), transparent 70%)',
-        }}
-      />
-
-      <Navbar />
-
-      <main id="main" className="measure px-6 pb-20 pt-16 md:px-8 md:pt-24">
-        <Hero />
-        <About />
-        <Experience />
-        <Projects />
-        <Research />
-        <Skills />
-        <Education />
-        <Contact />
+      <Loader />
+      <Header />
+      <main id="content" key={desktop ? 'desktop' : 'touch'}>
+        {fontsReady && (
+          <>
+            <Hero />
+            <Stickers />
+            <WhatIDo />
+            <Features />
+            <Cases />
+            <Vision />
+            <CtaBand />
+            <Numbers />
+            <Identity />
+            <Contact />
+          </>
+        )}
       </main>
-
       <Footer />
-
-      {/* Clears the floating dock so the footer is never underneath it. */}
-      <div aria-hidden className="h-20" />
-
-      <Dock />
-
+      <Cursor />
+      <ResumePopup />
       <Analytics />
     </>
   );
 }
-
-export default App;
