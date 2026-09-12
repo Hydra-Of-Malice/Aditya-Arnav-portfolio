@@ -1,23 +1,22 @@
 <!doctype html>
-<html lang="en" data-theme="light">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 
-    <title>Aditya Arnav</title>
+    <title>Aditya Arnav — AI Software Engineer</title>
     <meta
       name="description"
-      content="Aditya Arnav — AI/ML software engineer working on inference pipelines, agent orchestration and the backend services around them."
+      content="Aditya Arnav designs and builds production AI systems — real-time inference pipelines, multi-agent orchestration and the backend services that keep them running."
     />
     <meta name="author" content="Aditya Arnav" />
-    <meta name="theme-color" content="#fbfbfd" />
-    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#000000" />
 
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Aditya Arnav" />
+    <meta property="og:title" content="Aditya Arnav — AI Software Engineer" />
     <meta
       property="og:description"
-      content="AI/ML software engineer — inference pipelines, agent orchestration, backend services."
+      content="Production AI systems — inference pipelines, agent orchestration, backend services."
     />
     <meta name="twitter:card" content="summary" />
 
@@ -26,24 +25,23 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!--
+      Stand-ins for the reference site's licensed faces:
+        Kamerik 205        -> Archivo (display, 700/900)
+        Freight Big Pro    -> Instrument Serif italic (the cursive)
+        PP Neue Montreal   -> Inter (body)
+        Akkurat Mono       -> DM Mono (labels)
+    -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300..800&family=JetBrains+Mono:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
 
     <script>
-      // Set the theme before first paint so there is no flash of the wrong theme.
-      // Light is the default; dark only applies once a visitor toggles into it.
-      (function () {
-        try {
-          document.documentElement.dataset.theme = localStorage.getItem('theme') || 'light';
-        } catch (e) {
-          document.documentElement.dataset.theme = 'light';
-        }
-      })();
+      if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
     </script>
   </head>
-  <body>
+  <body class="loading">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
