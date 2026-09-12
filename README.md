@@ -1,7 +1,9 @@
 # Aditya Arnav — Portfolio
 
-Personal portfolio site. React + TypeScript + Vite, Tailwind CSS v4. No runtime
-dependencies beyond React.
+Personal portfolio site. React + TypeScript + Vite, GSAP, Lenis and
+react-three-fiber. The layout and interaction design follow
+[hobro.digital](https://hobro.digital/) (Awwwards SOTD), rebuilt from scratch
+with the résumé content in `src/data.ts`.
 
 ## Commands
 
@@ -17,66 +19,129 @@ npm run lint     # oxlint
 
 ```
 src/
-  data.ts                 all site content — edit this, not the components
-  index.css               palette, both themes, base styles, utilities
+  data.ts                 résumé facts — edit this, not the components
+  site.ts                 shapes data.ts into the page's sections and copy
+  index.css               imports the three stylesheets below
+  styles/
+    base.css              tokens, reset, the four type roles, curtains
+    chrome.css            loader, cursor, header, buttons, popup, forms
+    sections.css          one block per section, top to bottom
   lib/
-    hooks.ts              theme, scroll-reveal, scroll spy, clock, rotator
+    gsap.ts               registers every GSAP plugin + the custom eases
+    smoothScroll.ts       Lenis (desktop only), scroll lock, scrollToHash
+    loader.ts             loaderExited / loaderComplete events
+    device.ts             is-desktop / is-mobile (hover + fine pointer)
+    popup.ts              event bus for the résumé popup
+    hooks.ts              useIsDesktop, useInView
   components/
-    Dock.tsx              the floating magnifying nav at the bottom
-    Icons.tsx             every icon, inline, drawn in a 24-box
-    Section.tsx           shared section shell (eyebrow + heading + intro)
-    …                     one component per section
+    Loader, Cursor, Header, ResumePopup       page chrome
+    Hero, Stickers, Cta, WhatIDo, Features,   sections, in page order
+    Cases (+CasePopup, CaseArt), Vision,
+    CtaBand, Numbers, Identity, Contact, Footer
+    three/                                    the WebGL scenes
+      HeroScene   warm, breathing form + bokeh behind the name
+      FeatureScene four scenes swapped in one canvas, follows the cursor
+      VisionScene  low-angle meadow behind "Core Vision"
 ```
 
 ## Design
 
-A single centred 46rem column on near-black (`#09090b`) or near-white
-(`#fbfbfd`), set in **Inter** with **JetBrains Mono** reserved for metadata —
-dates, eyebrows, badges, references. One accent throughout: the violet picked
-out of the hero artwork.
+Black and white, one neon green, four type roles:
 
-Everything is cut from four primitives defined as Tailwind utilities in
-`index.css`, so the page reads as one system:
+| role       | face (free stand-in for the reference's licensed one) | used for                          |
+| ---------- | ----------------------------------------------------- | --------------------------------- |
+| title      | Archivo 900                                           | the huge uppercase headings       |
+| cursive    | Instrument Serif italic                               | the counterpoint word in a title  |
+| text       | Inter                                                 | body copy, mid-size headings      |
+| typewriter | DM Mono                                               | every label, caption and button   |
 
-- **`card`** — the elevated surface every panel, project and timeline entry uses.
-- **`badge`** — the mono pill used for tech stacks, dates and section eyebrows.
-- **`btn`** / **`btn-primary`** — the only two button weights.
-- **`link`** — inline links, underlined in the accent.
+Everything is CSS custom properties on `:root` in `styles/base.css`; change
+`--c-brand-primary` to re-accent the whole site.
 
-Colours are CSS variables on `:root` / `[data-theme="light"]`, exposed to
-Tailwind via `@theme inline`, so components only use semantic names
-(`text-dim`, `border-line`, `bg-accent-soft`, …). The theme is applied before
-first paint by an inline script in `index.html` and persisted to `localStorage`.
+### Interactions
 
-### The dock
+- **Loader** — black curtains and a white progress bar; the bar creeps while
+  the window loads, then the curtains scale away. `loaderExited` fires as they
+  open, `loaderComplete` when the bar is full. Sections key their entrances
+  off those.
+- **Cursor** — a green dot and a lagging white ring in `difference` blend.
+  `.cursor__trigger` grows the ring; `.js-nav-cursor-hover` stretches it into a
+  pill around the element. Hover targets are found by delegation.
+- **Hero** — the name is rendered letter by letter; letters can be dragged and
+  reordered between the two words (SortableJS). The WebGL scene scales in
+  behind, and the résumé card slides up from the bottom-right a few seconds
+  later (dismissal is remembered for the session).
+- **Stickers** — eight tech stickers flashed in sequence inside a white box;
+  the headline is revealed per character on scroll.
+- **What I Do** — the three title words slide in at different speeds; the
+  paragraph is "typed"; five hairlines ripple (MorphSVG) on hover; the dot
+  grid shows a random "My approach" quote in a tooltip that follows the
+  pointer.
+- **Features** — hovering a row paints a black pill behind it, swaps its label
+  for two cycling words, and brings up a 3D scene beside the pointer with the
+  reference's skew-and-rotate reveal. On touch devices the section pins and
+  scrolling steps through the rows.
+- **Cases** — "Fresh Drop" has a white cover panel that slides across on
+  hover; grid tiles are cut in from a corner as they scroll into view and
+  round their corners on hover; every tile opens a full-screen popup with a
+  curtain-revealed gallery. Artwork is generated per case (`CaseArt`) from a
+  seed and a two-colour palette.
+- **Vision** — cursive title and big paragraph revealed per character as you
+  scroll, three columns drift up, the email is typed out.
+- **Numbers** — counters in the cursive face, and the elliptical "Let's kick
+  off" button whose rings part on hover.
+- **Identity** — a title wiped in by six curtains, words sliding in from both
+  sides, and a draggable (inertia) strip of work / education / patent cards.
+- **Contact** — the reference's "Let's Talk" page, folded in as a section.
+  Submitting opens a pre-filled mail; there is no backend.
 
-Navigation lives in a floating macOS-style dock pinned to the bottom of the
-viewport (`Dock.tsx`): section links, then socials, then the theme toggle,
-separated by hairlines.
+Smooth scrolling is Lenis on desktop and native on mobile. All scroll-driven
+animation is GSAP ScrollTrigger. Every WebGL canvas stops rendering when it
+is off screen, and `three` is code-split so it loads after the page.
 
-Magnification is driven by **slot distance from whatever is hovered**, not by
-cursor position, so nothing is measured at runtime and there is no feedback
-loop between an icon's size and its own bounding box. The scale lives on the
-button (`transform`, origin bottom) while the width lives on the `<li>`
-underneath it — the slot widens first, which is what stops a magnified icon
-from colliding with its neighbours. Hovering also raises a tooltip; focus
-drives the same state, so the effect works from the keyboard.
+### Accessibility
 
-The active item is tracked by `useActiveSection`, which marks whichever section
-is under the top third of the viewport. Secondary items (Patents, Stack,
-Education, LeetCode) are dropped below `sm` so the dock never overflows a phone.
+- Every project tile is an operable button: reachable by Tab, opened with
+  Enter or Space, and named "Open case study: …". Both overlays are modal
+  dialogs and close on Escape.
+- The split display headings ("What I DO", "My core identity", "ARNAV LNK")
+  carry an explicit `aria-label`, because their words are separate elements
+  and would otherwise be announced run together.
+- Form text meets WCAG AA. The dimmed field labels and the idle submit button
+  were at 2.2:1 and 1.7:1; they are now above 6:1.
+- **`prefers-reduced-motion: reduce`** is honoured properly: the three WebGL
+  scenes and the footer canvas never start, Lenis hands scrolling back to the
+  browser, every looping CSS keyframe and transition is neutralised, and
+  GSAP's global timeline is sped up so entrances land on their end state
+  instead of travelling. Scroll-scrubbed text reveals still follow the scroll,
+  since they are progress-driven rather than time-driven.
 
-### Motion
+### Things worth knowing
 
-Three animations, all in `index.css`:
+- The device branch (`is-desktop` / `is-mobile`, from `hover` + `pointer` +
+  a 1025px floor) is keyed onto `<main>` in `App.tsx`. Crossing that boundary
+  by resizing or rotating remounts the sections so they re-initialise for the
+  layout they are now in, rather than leaving desktop behaviour on a touch
+  device.
+- Listeners added inside a `gsap.context()` are **not** removed by
+  `ctx.revert()`. Every one is bound to an `AbortController` signal that the
+  context's own cleanup fires — without that they accumulate on each remount.
+- Only the open case popup is mounted. Keeping all nine in the DOM cost about
+  1,100 nodes, a third of the page, for markup nobody had opened.
+- `.block-form__head` waits at `translateX(50%)` until its trigger fires, so
+  `.block-form` is `overflow-x: clip`; `html`/`body` carry the same guard.
+- `<main>` waits for `document.fonts.ready` (racing a 2s timeout) before it
+  mounts, because SplitText measures line boxes — splitting against the
+  fallback face produced masks sized for the wrong widths. The loader covers
+  that wait.
+- Both forms open a pre-filled mail; nothing is sent from the page, and the
+  success copy says so.
 
-- **`enter`** — a 16px rise out of a 6px blur. Staggered 90ms across the hero's
-  children on load (`.stagger`), fired per section on scroll (`.reveal`), and
-  trailed 80ms across rows inside a revealed section (`.trail`).
-- **`marquee`** — the tech strip under the hero, doubled and translated -50%.
-- **`float`** — the hero artwork, 7s.
+### Known gaps
 
-`useReveal` sets `data-revealed` via `IntersectionObserver`, falling back to
-showing the section outright if the API is unavailable.
-`prefers-reduced-motion: reduce` collapses every animation to an instant state
-change.
+- No `og:image` / `twitter:image`, so link shares render without a preview
+  card. Needs a 1200×630 asset in `public/`.
+- `apple-touch-icon` points at the SVG favicon, which iOS ignores; it wants a
+  180×180 PNG.
+- The critical JS chunk is ~519 kB (GSAP plugins plus SortableJS). Splitting
+  the below-the-fold plugins behind a dynamic import would trim it.
