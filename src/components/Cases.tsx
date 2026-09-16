@@ -156,8 +156,6 @@ export default function Cases() {
     return () => ctx.revert();
   }, []);
 
-  const alignClass = (a?: string) => (a ? `cases__item--align-${a}` : '');
-
   return (
     <>
       <section className="cases" id="projects" ref={root}>
@@ -190,7 +188,10 @@ export default function Cases() {
               </div>
             </div>
             <div className="cases__description">
-              <span className="cases__name text-small">{latestCase.name}</span>
+              <span className="cases__name">{latestCase.name}</span>
+              <span className="cases__meta">
+                {latestCase.category} / {latestCase.year}
+              </span>
             </div>
           </div>
 
@@ -206,8 +207,8 @@ export default function Cases() {
           </div>
 
           <div className="cases__list js-cases-list">
-            {cases.map((c, i) => (
-              <div className={`cases__item ${alignClass(c.align)} ${i === 6 ? 'cases__item--center-column' : ''}`} key={c.id}>
+            {cases.map((c) => (
+              <div className={`cases__item cases__item--${c.size}`} key={c.id}>
                 <div
                   className={`cases__subitem cases__subitem--${c.size} js-cases-item js-subcase cursor__trigger`}
                   role="button"
@@ -217,10 +218,13 @@ export default function Cases() {
                   onKeyDown={openOnKey(() => setOpenId(c.id))}
                 >
                   <div className="cases__asset js-case-asset">
-                    <CaseArt c={c} />
+                    <CaseArt c={c} ratio={c.size === 'big' ? 'wide' : 'square'} />
                   </div>
-                  <div className="cases__description">
-                    <span className="cases__name text-small js-case-name">{c.name}</span>
+                  <div className="cases__description js-case-name">
+                    <span className="cases__name">{c.name}</span>
+                    <span className="cases__meta">
+                      {c.category} / {c.year}
+                    </span>
                   </div>
                 </div>
               </div>

@@ -1,71 +1,43 @@
 import { contact, person } from '../site';
-import { ContactBracket, Github, Leetcode, Linkedin, Mail } from './Icons';
 import ResumeButton from './ResumeButton';
 
-const socialIcon = { linkedin: Linkedin, github: Github, leetcode: Leetcode, mail: Mail } as const;
-
 type Props = {
-  inverse?: boolean;
-  short?: boolean;
   className?: string;
 };
 
-/** Address / email / socials block used by the footer, the mobile menu and the contact section. */
-export default function ContactLinks({ inverse, short, className = '' }: Props) {
+/** Where, when and how to reach me — the column beside the contact form. */
+export default function ContactLinks({ className = '' }: Props) {
   return (
-    <div
-      className={`contact-links ${inverse ? 'contact-links--inverse' : ''} ${short ? 'contact-links--short' : ''} ${className}`}
-    >
-      <ContactBracket className="contact-links__icon js-footer-icon-top" />
-      <div className="contact-links__wrapper">
-        <div className="contact-links__text text-small contact-links__text--address">
-          <span>based in:</span>
-          <span>
-            {contact.location.map((l) => (
-              <span key={l}>
-                {l}
-                <br />
-              </span>
-            ))}
-          </span>
-        </div>
-        <div className="contact-links__dot" />
-        <div className="contact-links__text text-small">
-          <span>timezone:</span>
-          <span>{contact.timezone}</span>
-        </div>
-        <div className="contact-links__dot" />
-        <div className="contact-links__text text-small">
-          <span>email:</span>
+    <dl className={`contact-links ${className}`}>
+      <div className="contact-links__row">
+        <dt className="contact-links__label">Based in</dt>
+        <dd className="contact-links__value">{contact.location.join(' ')}</dd>
+      </div>
+      <div className="contact-links__row">
+        <dt className="contact-links__label">Timezone</dt>
+        <dd className="contact-links__value">{contact.timezone}</dd>
+      </div>
+      <div className="contact-links__row">
+        <dt className="contact-links__label">Email</dt>
+        <dd className="contact-links__value">
           <a className="contact-link cursor__trigger" href={`mailto:${contact.email}`}>
             {contact.email}
           </a>
-          <ResumeButton label={person.resumeCta} light={inverse} />
-        </div>
-        <div className="contact-links__dot" />
-        <div className="contact-links__text text-small">
-          <span>Social:</span>
-          <ul className="socials">
-            {contact.socials.map((s) => {
-              const Icon = socialIcon[s.name as keyof typeof socialIcon];
-              return (
-                <li className="socials__item" key={s.name}>
-                  <a
-                    aria-label={s.label}
-                    className="socials__link cursor__trigger"
-                    href={s.href}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <Icon />
-                  </a>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
+        </dd>
       </div>
-      <ContactBracket className="contact-links__icon contact-links__icon-bottom js-footer-icon-bottom" />
-    </div>
+      <div className="contact-links__row">
+        <dt className="contact-links__label">Elsewhere</dt>
+        <dd className="contact-links__value contact-links__socials">
+          {contact.socials
+            .filter((s) => s.name !== 'mail')
+            .map((s) => (
+              <a className="contact-link cursor__trigger" href={s.href} target="_blank" rel="noreferrer" key={s.name}>
+                {s.label}
+              </a>
+            ))}
+        </dd>
+      </div>
+      <ResumeButton label={person.resumeCta} className="contact-links__cta" />
+    </dl>
   );
 }

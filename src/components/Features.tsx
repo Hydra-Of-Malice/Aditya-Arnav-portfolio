@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { gsap, ScrollTrigger } from '../lib/gsap';
 import { isDesktopDevice } from '../lib/device';
-import { useInView, useReducedMotion } from '../lib/hooks';
+import { useInView } from '../lib/hooks';
 import { features, featuresCta } from '../site';
 import ResumeButton from './ResumeButton';
 import SceneBoundary from './SceneBoundary';
@@ -23,7 +23,6 @@ export default function Features() {
   // WebGL context and shaders are ready before the first hover.
   const [hovering, setHovering] = useState(false);
   const [warm, setWarm] = useState(true);
-  const reduced = useReducedMotion();
   const sceneBox = useRef<HTMLDivElement>(null);
   const boxInView = useInView(sceneBox, '10%');
 
@@ -88,8 +87,8 @@ export default function Features() {
       if (desktop) {
         gsap.set(box, { perspective: 800, rotationY: 9, skewY: -10, scale: 0.77, transformOrigin: '50% 50%', x: 100 });
         // Create the WebGL context now, while the box is still invisible.
-        const warmUp = reduced ? 0 : window.setTimeout(() => setShowScene(true), 2500);
-        const coolDown = reduced ? 0 : window.setTimeout(() => setWarm(false), 6000);
+        const warmUp = window.setTimeout(() => setShowScene(true), 2500);
+        const coolDown = window.setTimeout(() => setWarm(false), 6000);
         let xTo: ReturnType<typeof gsap.quickTo> | undefined;
         let yTo: ReturnType<typeof gsap.quickTo> | undefined;
         let show: gsap.core.Timeline | null = null;
@@ -102,9 +101,6 @@ export default function Features() {
           yTo?.(e.clientY);
         };
         const showBox = (x: number, y: number) => {
-          // Under reduced motion the rows still highlight, but nothing flies in
-          // beside the pointer.
-          if (reduced) return;
           hide?.kill();
           shown = true;
           setHovering(true);
@@ -135,7 +131,7 @@ export default function Features() {
           });
           if (!inside) hideBox();
         };
-        if (!reduced) on(window, 'mousemove', outside);
+        on(window, 'mousemove', outside);
 
         frames.forEach((frame, i) => {
           const top = frame.querySelector<HTMLElement>('.feature__text--top')!;
@@ -168,7 +164,7 @@ export default function Features() {
               enter.play(0);
               setTimeout(() => {
                 setActive(i);
-                if (!reduced) setShowScene(true);
+                setShowScene(true);
                 showBox(e.clientX, e.clientY);
               }, 150);
             }, 200);
@@ -221,7 +217,7 @@ export default function Features() {
       };
     }, section);
     return () => ctx.revert();
-  }, [reduced]);
+  }, []);
 
   return (
     <section className="features" ref={root}>
@@ -249,7 +245,7 @@ export default function Features() {
       </div>
 
       <div className="features__videos js-features-videos" ref={sceneBox} aria-hidden>
-        {showScene && !reduced && (
+        {showScene && (
           <SceneBoundary>
             <Suspense fallback={null}>
               <FeatureScene scene={features[active].scene} active={(hovering || warm) && boxInView} />
