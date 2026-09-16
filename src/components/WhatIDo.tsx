@@ -40,7 +40,8 @@ export default function WhatIDo() {
       const ac = new AbortController();
       const on = (el: EventTarget, type: string, fn: (e: MouseEvent) => void) =>
         el.addEventListener(type, fn as EventListener, { signal: ac.signal });
-      /* Titles slide in from the right at three different speeds. */
+      /* Titles slide in from the right at three different speeds, and land
+         while the title is still on screen rather than as it leaves. */
       const titles = section.querySelectorAll<HTMLElement>('.wwd-title-js');
       gsap.set(titles[0], { xPercent: 120 });
       gsap.set(titles[1], { xPercent: 20 });
@@ -50,7 +51,7 @@ export default function WhatIDo() {
           xPercent: 0,
           duration: 2,
           ease: 'power2.out',
-          scrollTrigger: { trigger: t, start: 'top bottom', end: 'bottom top', scrub: i === 2 ? 0.6 : 0.3 },
+          scrollTrigger: { trigger: t, start: 'top bottom', end: 'top 35%', scrub: i === 2 ? 0.6 : 0.3 },
         });
       });
 

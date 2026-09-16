@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { DESKTOP_QUERY, isDesktopDevice, prefersReducedMotion, REDUCED_MOTION_QUERY } from './device';
+import { DESKTOP_QUERY, isDesktopDevice } from './device';
 
 /** Subscribe to a media query and re-render when it flips. */
 function useMediaQuery(query: string, initial: () => boolean) {
@@ -20,9 +20,6 @@ function useMediaQuery(query: string, initial: () => boolean) {
  * rather than leaving desktop behaviour on a touch layout.
  */
 export const useIsDesktop = () => useMediaQuery(DESKTOP_QUERY, isDesktopDevice);
-
-/** Whether the visitor has asked for reduced motion. */
-export const useReducedMotion = () => useMediaQuery(REDUCED_MOTION_QUERY, prefersReducedMotion);
 
 /**
  * Resolves once the webfonts have settled, so SplitText measures real line

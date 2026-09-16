@@ -1,8 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { gsap } from '../lib/gsap';
 import { prefersReducedMotion } from '../lib/device';
-import { footer } from '../site';
-import ContactLinks from './ContactLinks';
+import { contact, footer } from '../site';
 
 /** A cheap 2D canvas of drifting light, standing in for the footer video. */
 function FooterCanvas() {
@@ -72,34 +71,6 @@ export default function Footer() {
       const st = { trigger: title, start: 'top-=5% bottom', end: 'bottom center', toggleActions: 'play none none reverse' };
       gsap.to(title, { scaleX: 1, opacity: 1, duration: 1.2, ease: 'power1.inOut', delay: 0.3, scrollTrigger: st });
       curtains.forEach((c) => gsap.to(c, { scaleX: 0, duration: 1.2, ease: 'power1.inOut', delay: 0.3, scrollTrigger: st }));
-
-      const links = el.querySelector<HTMLElement>('.contact-links-js')!;
-      const wrapper = links.querySelector('.contact-links__wrapper');
-      const top = links.querySelector('.js-footer-icon-top');
-      const bottom = links.querySelector('.js-footer-icon-bottom');
-      const texts = links.querySelectorAll('.contact-links__text');
-      const h = links.clientHeight;
-      gsap.set(wrapper, { opacity: 0 });
-      gsap.set(texts, { opacity: 0 });
-      gsap.set(top, { y: h / 2 - 25 });
-      gsap.set(bottom, { y: h / -2 + 25 });
-      const mobile = window.innerWidth < 768;
-      gsap
-        .timeline({
-          scrollTrigger: {
-            trigger: links,
-            start: mobile ? 'center-=30% bottom' : 'center-=30% center',
-            end: mobile ? 'bottom+=20% bottom' : 'bottom+=10% bottom',
-            toggleActions: 'play none none reverse',
-          },
-        })
-        .to(top, { y: 0, duration: 1 })
-        .to(bottom, { y: 0, duration: 1 }, 0)
-        .to(wrapper, { opacity: 1, duration: 0.3 }, '-=0.3')
-        .to(texts[1], { opacity: 1, duration: 0.25 }, '-=0.25')
-        .to(texts[2], { opacity: 1, duration: 0.25 }, '-=0.2')
-        .to(texts[3], { opacity: 1, duration: 0.25 }, '-=0.15')
-        .to(texts[0], { opacity: 1, duration: 0.25 }, '-=0.1');
     }, el);
     return () => ctx.revert();
   }, []);
@@ -122,25 +93,31 @@ export default function Footer() {
           <span />
         </div>
       </div>
-      <div className="footer__wrapper">
-        <div className="footer__left">
-          <div className="footer__text">
-            <span className="footer__numbers">
-              {footer.years}
-              {year}
-            </span>
-            <span className="text-small text-small--xl">{footer.copyright}</span>
-            <a href={footer.link.href} target="_blank" rel="noreferrer" className="footer__link text-small cursor__trigger">
-              {footer.link.label}
+      <div className="footer__bar container">
+        <div className="footer__meta">
+          <span className="footer__numbers">
+            {footer.years}
+            {year}
+          </span>
+          <span className="footer__copyright">{footer.copyright}</span>
+        </div>
+        <ul className="footer__links">
+          {contact.socials.map((s) => (
+            <li key={s.name}>
+              <a className="footer__link cursor__trigger" href={s.href} target={s.name === 'mail' ? undefined : '_blank'} rel="noreferrer">
+                {s.label}
+              </a>
+            </li>
+          ))}
+          <li>
+            <a className="footer__link cursor__trigger" href={footer.link.href} target="_blank" rel="noreferrer">
+              Source code
             </a>
-          </div>
-          <div className="footer__media">
-            <FooterCanvas />
-          </div>
-        </div>
-        <div className="footer__right">
-          <ContactLinks className="contact-links-js" />
-        </div>
+          </li>
+        </ul>
+      </div>
+      <div className="footer__media">
+        <FooterCanvas />
       </div>
     </footer>
   );

@@ -23,7 +23,7 @@ type Props = {
 /**
  * Stands in for the reference's case-study renders: a generated poster in
  * the case's palette — a soft accent glow, a grid, a few slabs and rings,
- * and the case name set small in the corner.
+ * with no text of its own: the caption beside it names the case.
  */
 export default function CaseArt({ c, variant = 0, ratio = 'square' }: Props) {
   const w = ratio === 'square' ? 600 : 960;
@@ -82,15 +82,6 @@ export default function CaseArt({ c, variant = 0, ratio = 'square' }: Props) {
           key={i}
         />
       ))}
-      <text x="28" y={h - 28} fontFamily="DM Mono, monospace" fontSize="16" fill="#fff" fillOpacity="0.85" letterSpacing="2">
-        {c.name.toUpperCase()}
-      </text>
-      <text x={w - 28} y={h - 28} textAnchor="end" fontFamily="DM Mono, monospace" fontSize="16" fill="#fff" fillOpacity="0.6" letterSpacing="2">
-        {`${c.category} / ${c.year}`}
-      </text>
-      <text x="28" y="60" fontFamily="Archivo, sans-serif" fontWeight="900" fontSize="34" fill="#fff" fillOpacity="0.9">
-        {String(variant + 1).padStart(2, '0')}
-      </text>
     </svg>
   );
 }
