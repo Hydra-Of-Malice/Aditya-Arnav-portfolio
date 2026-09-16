@@ -5,12 +5,12 @@
    type roles. The whole page is built from the four roles —
      title      Archivo 900, uppercase, huge
      cursive    Instrument Serif italic, the counterpoint to the title
-     text       Inter, the body
-     typewriter DM Mono, uppercase, every label and small caption
+     text       Instrument Sans, the body
+     typewriter Geist Mono, uppercase, every label and small caption
 --------------------------------------------------------------------------- */
 :root {
   --side-gutters: 0.75rem;
-  --header-height: 77px;
+  --header-height: 68px;
   --c-brand-primary: #00fb96;
   --c-brand-secondary: #dbdcca;
   --c-bg-primary: #000;
@@ -21,9 +21,9 @@
   --c-font-secondary: #fff;
   --c-font-error: #e6b0b0;
   --font-title: 'Archivo', Arial, sans-serif;
-  --font-text: 'Inter', Helvetica, Arial, sans-serif;
+  --font-text: 'Instrument Sans', Helvetica, Arial, sans-serif;
   --font-cursive: 'Instrument Serif', Georgia, serif;
-  --font-typewriter: 'DM Mono', ui-monospace, monospace;
+  --font-typewriter: 'Geist Mono', ui-monospace, monospace;
   --c-border-default: #636262;
   --c-border: 1px solid var(--c-border-default);
   --c-border-grid: #4141413b;
@@ -41,7 +41,7 @@
 }
 @media (max-width: 767px) {
   :root {
-    --header-height: 4rem;
+    --header-height: 3.75rem;
   }
 }
 
@@ -269,22 +269,20 @@ html.is-mobile .visible-desktop {
 /* ---------------------------------------------------------------------------
    Reduced motion
 
-   Every looping keyframe animation (the logo mark, the hero dots, the vision
-   rings, the sticker flash) and every transition is collapsed to an instant
-   state change. The WebGL scenes, the footer canvas and smooth scrolling are
-   switched off in JS; GSAP's global timeline is sped up so entrances land on
-   their end state. See src/lib/device.ts.
+   A gentler mode, not an off switch. Entrances, hover feedback, transitions
+   and the WebGL scenes still play. What goes is the motion that never stops
+   or that the visitor didn't cause: the looping keyframes below, the drifting
+   footer canvas (one still frame, in Footer.tsx) and Lenis's eased scrolling
+   (native scroll instead, in smoothScroll.ts).
 --------------------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
-    transition-delay: 0ms !important;
+  .logo__shape,
+  .about__mark span,
+  .aims__loader .ring,
+  .team__title .title__o {
+    animation: none;
   }
 }

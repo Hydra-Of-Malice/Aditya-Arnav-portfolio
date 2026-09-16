@@ -3,7 +3,7 @@ import Sortable from 'sortablejs';
 import { gsap, SplitText } from '../lib/gsap';
 import { waitForLoaderExitOnce } from '../lib/loader';
 import { person, resumeCta } from '../site';
-import { useInView, useReducedMotion } from '../lib/hooks';
+import { useInView } from '../lib/hooks';
 import ResumeButton from './ResumeButton';
 import SceneBoundary from './SceneBoundary';
 
@@ -21,7 +21,6 @@ export default function Hero() {
   const root = useRef<HTMLElement>(null);
   const sceneRef = useRef<HTMLDivElement>(null);
   const inView = useInView(sceneRef, '0px');
-  const reduced = useReducedMotion();
   const [sceneOn, setSceneOn] = useState(false);
 
   useEffect(() => {
@@ -115,7 +114,7 @@ export default function Hero() {
         </div>
 
         <div className="about__scene" ref={sceneRef} aria-hidden>
-          {sceneOn && !reduced && (
+          {sceneOn && (
             <SceneBoundary>
               <Suspense fallback={null}>
                 <HeroScene active={inView} />

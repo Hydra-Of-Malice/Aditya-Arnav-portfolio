@@ -45,13 +45,13 @@ export default function Identity() {
       /* Draggable strip */
       const slider = section.querySelector<HTMLElement>('.js-team-slider')!;
       const strip = section.querySelector<HTMLElement>('.js-team-dragable')!;
-      gsap.set(slider, { xPercent: 70 });
-      gsap.to(slider, { xPercent: 35, duration: 2, scrollTrigger: { trigger: slider, start: 'top bottom', end: 'bottom+=10% center', toggleActions: 'play none none reverse' } });
-      const minX = slider.clientWidth - strip.scrollWidth - 0.35 * slider.clientWidth;
+      gsap.set(slider, { xPercent: 40 });
+      gsap.to(slider, { xPercent: 0, duration: 2, scrollTrigger: { trigger: slider, start: 'top bottom', end: 'bottom+=10% center', toggleActions: 'play none none reverse' } });
+      const minX = Math.min(0, slider.clientWidth - strip.scrollWidth);
       Draggable.create(strip, { type: 'x', bounds: { minX, maxX: 0 }, inertia: true, edgeResistance: 0.75, minimumMovement: 0 });
 
       // Arrow keys move the same axis, so the strip is not pointer-only.
-      const step = 180;
+      const step = 236;
       strip.addEventListener('keydown', (e) => {
         const dir = e.key === 'ArrowRight' ? -1 : e.key === 'ArrowLeft' ? 1 : 0;
         if (!dir) return;

@@ -35,8 +35,8 @@ export const contact = {
 };
 
 export const nav = [
-  { label: 'Projects', href: '#projects' },
   { label: 'Stack', href: '#services' },
+  { label: 'Projects', href: '#projects' },
   { label: 'About', href: '#agency' },
   { label: 'Contact', href: '#contact', contact: true },
 ];
@@ -149,7 +149,6 @@ export type Case = {
   /** Two-tone palette for the generated artwork. */
   palette: [string, string];
   size: 'big' | 'small';
-  align?: 'top' | 'bottom' | 'center' | 'right';
   category: 'AI' | 'WEB' | 'RESEARCH';
   description: string[];
   tags: string[];
@@ -203,13 +202,18 @@ export const cases: Case[] = [
     size: 'small',
     category: 'AI',
   }),
+  projectCase(byTitle('Biomedical'), {
+    seed: 53,
+    palette: ['#141a14', '#b8ff5c'],
+    size: 'small',
+    category: 'RESEARCH',
+  }),
   {
     id: 'meeting',
     name: 'Meeting Intelligence',
     seed: 41,
     palette: ['#101418', '#e4e4e4'],
     size: 'big',
-    align: 'right',
     category: 'AI',
     year: '2026',
     description: [
@@ -219,20 +223,24 @@ export const cases: Case[] = [
     tags: experience[0].stack,
     links: [],
   },
-  projectCase(byTitle('Biomedical'), {
-    seed: 53,
-    palette: ['#141a14', '#b8ff5c'],
-    size: 'small',
-    align: 'top',
+  {
+    id: 'trust',
+    name: research[0].title.split(' Multi')[0],
+    seed: 71,
+    palette: ['#1b1b1b', '#ffd166'],
+    size: 'big',
     category: 'RESEARCH',
-  }),
+    year: '2026',
+    description: [research[0].description, `${research[0].role} · ${research[0].reference}`],
+    tags: ['Patent', 'Multi-Agent', 'Trust Modelling', 'Consensus', 'Orchestration'],
+    links: [],
+  },
   {
     id: 'blanksage',
     name: 'BlankSage Platform',
     seed: 61,
     palette: ['#16131c', '#c9b6ff'],
     size: 'small',
-    align: 'bottom',
     category: 'WEB',
     year: '2026',
     description: [
@@ -243,16 +251,15 @@ export const cases: Case[] = [
     links: [],
   },
   {
-    id: 'trust',
-    name: research[0].title.split(' Multi')[0],
-    seed: 71,
-    palette: ['#1b1b1b', '#ffd166'],
-    size: 'big',
-    align: 'center',
+    id: 'glide',
+    name: research[1].title,
+    seed: 97,
+    palette: ['#121a1a', '#5ef2e0'],
+    size: 'small',
     category: 'RESEARCH',
     year: '2026',
-    description: [research[0].description, `${research[0].role} · ${research[0].reference}`],
-    tags: ['Patent', 'Multi-Agent', 'Trust Modelling', 'Consensus', 'Orchestration'],
+    description: [research[1].description, `${research[1].role} · ${research[1].reference}`],
+    tags: ['Patent', 'ESP32', 'IoT', 'Security'],
     links: [],
   },
   {
@@ -265,19 +272,6 @@ export const cases: Case[] = [
     year: '2025',
     description: ['A Django workflow platform with OpenCV occupancy checks.', ...experience[2].descriptionPoints],
     tags: experience[2].stack,
-    links: [],
-  },
-  {
-    id: 'glide',
-    name: research[1].title,
-    seed: 97,
-    palette: ['#121a1a', '#5ef2e0'],
-    size: 'small',
-    align: 'top',
-    category: 'RESEARCH',
-    year: '2026',
-    description: [research[1].description, `${research[1].role} · ${research[1].reference}`],
-    tags: ['Patent', 'ESP32', 'IoT', 'Security'],
     links: [],
   },
 ];

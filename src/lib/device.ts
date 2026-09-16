@@ -21,9 +21,10 @@ export function addDeviceClassToBody(): boolean {
 export const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
 
 /**
- * When this is true the page drops every decorative animation: the three WebGL
- * scenes and the footer canvas never start, smooth scrolling is handed back to
- * the browser, CSS loops are neutralised and GSAP entrances resolve instantly.
+ * When this is true the page runs in a gentler mode rather than going still:
+ * entrances, hovers and the WebGL scenes play, but smooth scrolling is handed
+ * back to the browser, the footer canvas paints one frame and the CSS loops
+ * stop (see the reduced-motion block in styles/base.css).
  */
 export const prefersReducedMotion = (): boolean =>
   typeof window !== 'undefined' && window.matchMedia(REDUCED_MOTION_QUERY).matches;

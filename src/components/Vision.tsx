@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { gsap, SplitText } from '../lib/gsap';
-import { useInView, useReducedMotion } from '../lib/hooks';
+import { useInView } from '../lib/hooks';
 import { vision } from '../site';
 import SceneBoundary from './SceneBoundary';
 
@@ -15,7 +15,6 @@ export default function Vision() {
   const root = useRef<HTMLElement>(null);
   const bg = useRef<HTMLDivElement>(null);
   const inView = useInView(bg, '10%');
-  const reduced = useReducedMotion();
   const [sceneOn, setSceneOn] = useState(false);
 
   useEffect(() => {
@@ -97,7 +96,7 @@ export default function Vision() {
   return (
     <section className="aims" id="agency" ref={root}>
       <div className="aims__bg" ref={bg} aria-hidden>
-        {sceneOn && !reduced && (
+        {sceneOn && (
           <SceneBoundary>
             <Suspense fallback={null}>
               <VisionScene active={inView} />

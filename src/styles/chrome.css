@@ -103,6 +103,11 @@ html.is-mobile .cursor {
 
 /* ---------------------------------------------------------------------------
    Header
+
+   One row, three columns: mark left, section links centred, résumé right.
+   Over the hero it is transparent in difference blend; past 80px a white bar
+   slides in behind it; scrolling down tucks it away, scrolling up brings it
+   back. Below 768px the links move into a full-screen black menu.
 --------------------------------------------------------------------------- */
 .header {
   /* 100vw ignores a classic scrollbar and eats the right gutter. */
@@ -111,7 +116,13 @@ html.is-mobile .cursor {
   top: 0;
   z-index: 100;
   opacity: 0;
-  transition: opacity 0.3s;
+  transition:
+    opacity 0.3s,
+    transform 0.6s var(--ease-popup);
+}
+/* Keyboard focus inside the bar always brings it back. */
+.header.header--tucked:not(:focus-within) {
+  transform: translateY(-101%);
 }
 .header:after {
   content: '';
@@ -119,30 +130,15 @@ html.is-mobile .cursor {
   width: 100%;
   height: var(--header-height);
   background-color: #fff;
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.08);
   top: 0;
   left: 0;
   z-index: 1;
   transform: translateY(-100%);
-  transition: transform 1s ease;
+  transition: transform 0.8s var(--ease-popup);
 }
 .header.header-animation:after {
   transform: translateY(0);
-}
-@media (min-width: 768px) {
-  .header.header-inverse {
-    mix-blend-mode: difference;
-  }
-  .header.header-inverse .logo,
-  .header.header-inverse .nav__link {
-    color: #fff;
-  }
-  .header.header-inverse.header-animation {
-    mix-blend-mode: normal;
-  }
-  .header.header-inverse.header-animation .logo,
-  .header.header-inverse.header-animation .nav__link {
-    color: #000;
-  }
 }
 body.is-popup-open .header {
   z-index: 0;
@@ -153,75 +149,32 @@ body.is-popup-open .header {
   pointer-events: none;
 }
 .header__container {
-  display: flex;
-  max-width: 100%;
-  padding: var(--side-gutters);
-  padding-bottom: 0;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  column-gap: 1.5rem;
+  height: var(--header-height);
+  padding-inline: var(--side-gutters);
   position: relative;
   z-index: 101;
-  align-items: flex-start;
 }
-@media (max-width: 767px) {
-  .header {
-    background-color: transparent;
-  }
-  /* Over the black hero the mark and burger are white; once the white bar
-     slides in (scrolled) they turn black. */
-  .header.header-inverse .logo,
-  .header.header-inverse .header__btn-line {
-    color: #fff;
-    background-color: #fff;
-  }
-  .header.header-inverse .logo {
-    background-color: transparent;
-  }
-  .header.header-inverse.header-animation .logo {
-    color: #000;
-  }
-  .header.header-inverse.header-animation .header__btn-line {
-    background-color: #000;
-  }
-  .is-mob-menu-open .header .logo {
-    color: #fff !important;
-  }
-  .is-mob-menu-open .header .header__btn-line {
-    background-color: #fff !important;
-  }
-  .header:before {
-    content: '';
-    position: fixed;
-    width: 100%;
-    height: var(--header-height);
-    background-color: transparent;
-    top: 0;
-    left: 0;
-    z-index: 101;
-    transition: background-color 0.5s ease;
-  }
-  .is-mob-menu-open .header:before {
-    background-color: var(--c-bg-primary);
-  }
-  .header__container {
-    justify-content: space-between;
-    padding-bottom: var(--side-gutters);
-    align-items: center;
-  }
-  .is-mob-menu-open .header__container {
-    position: static;
-  }
-}
+
+/* Mark */
 .header__logo {
-  display: flex;
+  justify-self: start;
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 0.5rem;
+  padding-block: 0.5rem;
   position: relative;
   z-index: 1000;
 }
 .logo {
   font-family: var(--font-title);
   font-weight: 900;
-  font-size: 1.1rem;
-  letter-spacing: -0.02em;
+  font-stretch: 115%;
+  font-size: 1rem;
+  letter-spacing: -0.01em;
   text-transform: uppercase;
   line-height: 1;
   color: #000;
@@ -229,8 +182,8 @@ body.is-popup-open .header {
   transition: color 0.3s;
 }
 .logo__shape {
-  width: 20px;
-  height: 20px;
+  width: 0.8125rem;
+  height: 0.8125rem;
   border-radius: 50%;
   background: var(--c-brand-primary);
   animation: logoShape 3s ease-in-out infinite;
@@ -246,70 +199,200 @@ body.is-popup-open .header {
     transform: rotate(135deg) scale(0.8);
   }
 }
-.is-mob-menu-open .logo {
-  color: #fff;
-}
+
+/* Section links */
 .header__navigation {
-  margin-left: auto;
+  justify-self: center;
 }
 .nav__list {
   display: flex;
-  flex-wrap: wrap;
-  max-width: 29.9375rem;
-  gap: 0 2.6875rem;
-}
-.nav__item {
-  display: flex;
-  flex-direction: column;
-}
-@media (min-width: 768px) {
-  .nav__item:nth-child(3) {
-    text-align: right;
-  }
-}
-@media (min-width: 1024px) {
-  .nav__item:nth-child(3) {
-    padding-left: 152px;
-  }
+  align-items: center;
+  gap: clamp(1.75rem, 3vw, 3rem);
 }
 .nav__link {
-  font-weight: 500;
-  font-size: calc(18rem / var(--fz-base));
-  line-height: normal;
   position: relative;
-  display: block;
+  display: flex;
+  align-items: center;
+  padding-block: 0.625rem;
+  font-family: var(--font-text);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  letter-spacing: -0.005em;
   color: #000;
   transition: color 0.3s;
 }
-@media (min-width: 900px) {
-  .nav__link {
-    font-size: calc(22rem / var(--fz-base));
+/* The label is stacked twice and clipped to one line; hover rolls the copy
+   up into view. */
+.nav__label {
+  display: block;
+  height: 1.2em;
+  line-height: 1.2;
+  overflow: hidden;
+}
+.nav__label-text {
+  display: block;
+  transition: transform 0.55s var(--ease-popup);
+}
+@media (hover: hover) and (pointer: fine) {
+  .nav__link:hover .nav__label-text {
+    transform: translateY(-100%);
   }
 }
-.nav__link--contact {
-  text-decoration: none;
+/* Green dot beside the link for the section in view. */
+.nav__dot {
+  position: absolute;
+  left: -0.8125rem;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  margin-top: -3px;
+  border-radius: 50%;
+  background: var(--c-brand-primary);
+  box-shadow: 0 0 0 1px currentColor;
+  transform: scale(0);
+  transition: transform 0.45s var(--ease-popup);
 }
-.header .capabilities-button-component {
-  margin-left: clamp(0.625rem, 2.6042vw, 3.125rem);
-  padding: 8px 13px;
-  align-self: baseline;
+.nav__link[aria-current] .nav__dot {
+  transform: scale(1);
 }
+.header .nav__link:focus-visible {
+  outline-color: currentColor;
+}
+
+/* Résumé */
+.header .header__cta {
+  justify-self: end;
+  padding: 0.625rem 1rem;
+  font-size: 0.8125rem;
+  gap: 0.5rem;
+  transition:
+    color 0.3s ease-out,
+    background-color 0.3s ease-out;
+}
+
+@media (min-width: 768px) {
+  .header.header-inverse {
+    mix-blend-mode: difference;
+  }
+  .header.header-inverse .logo,
+  .header.header-inverse .nav__link {
+    color: #fff;
+  }
+  /* Inverted pill so it reads as a white button over the black hero. */
+  .header.header-inverse .header__cta {
+    background-color: #fff;
+    color: #000;
+  }
+  .header.header-inverse.header-animation {
+    mix-blend-mode: normal;
+  }
+  .header.header-inverse.header-animation .logo,
+  .header.header-inverse.header-animation .nav__link {
+    color: #000;
+  }
+  .header.header-inverse.header-animation .header__cta {
+    background-color: #000;
+    color: #fff;
+  }
+}
+
+.header__btn-mobile {
+  position: relative;
+  z-index: 1000;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin-right: -0.625rem;
+}
+.header__btn-line {
+  position: absolute;
+  left: 50%;
+  width: 1.375rem;
+  height: 2px;
+  margin-left: -0.6875rem;
+  border-radius: 2px;
+  background-color: #000;
+  transition:
+    transform 0.5s var(--ease-popup),
+    top 0.5s var(--ease-popup),
+    background-color 0.3s;
+}
+.header__btn-line:nth-child(1) {
+  top: calc(50% - 4px);
+}
+.header__btn-line:nth-child(2) {
+  top: calc(50% + 3px);
+}
+.is-mob-menu-open .header__btn-line:nth-child(1) {
+  top: calc(50% - 1px);
+  transform: rotate(45deg);
+}
+.is-mob-menu-open .header__btn-line:nth-child(2) {
+  top: calc(50% - 1px);
+  transform: rotate(-45deg);
+}
+.is-mob-menu-open {
+  overflow: hidden;
+}
+
 @media (max-width: 767px) {
-  .header .header__logo + .capabilities-button-component {
+  .header__container {
+    grid-template-columns: 1fr auto;
+  }
+  .header .header__cta {
     display: none;
   }
+  /* Over the black hero the mark and burger are white; once the white bar
+     slides in they turn black; inside the open menu they are white again. */
+  .header.header-inverse .logo {
+    color: #fff;
+  }
+  .header.header-inverse .header__btn-line {
+    background-color: #fff;
+  }
+  .header.header-inverse.header-animation .logo {
+    color: #000;
+  }
+  .header.header-inverse.header-animation .header__btn-line {
+    background-color: #000;
+  }
+  .is-mob-menu-open .header .logo {
+    color: #fff !important;
+  }
+  .is-mob-menu-open .header .header__btn-line {
+    background-color: #fff !important;
+  }
+  /* A black band under the mark, so menu content scrolls beneath it. */
+  .header:before {
+    content: '';
+    position: fixed;
+    width: 100%;
+    height: var(--header-height);
+    background-color: transparent;
+    top: 0;
+    left: 0;
+    z-index: 101;
+    transition: background-color 0.5s ease;
+  }
+  .is-mob-menu-open .header:before {
+    background-color: var(--c-bg-primary);
+  }
+  .is-mob-menu-open .header__container {
+    position: static;
+  }
+
   .header__navigation {
     position: fixed;
     inset: 0;
+    /* Still a grid item: without this the desktop centring shrinks the panel. */
+    justify-self: stretch;
+    z-index: 999;
+    overflow-y: auto;
     background: var(--c-bg-primary);
-    color: #fff;
-    padding: 0 var(--side-gutters);
+    color: var(--c-font-secondary);
     transform: translateY(-100%);
     transition:
       transform 0.6s var(--ease-popup),
       visibility 0.6s;
-    overflow-y: auto;
-    z-index: 999;
     /* Closed means closed: without this the menu's links stay tabbable and
        stay in the accessibility tree while parked off-screen. */
     visibility: hidden;
@@ -318,105 +401,91 @@ body.is-popup-open .header {
     transform: translateY(0);
     visibility: visible;
   }
-  .nav__list {
-    margin: 5.25rem 0 3.75rem;
+  .nav__container {
+    min-height: 100%;
+    display: flex;
     flex-direction: column;
-    gap: 2.5rem;
-    max-width: 100%;
+    padding: calc(var(--header-height) + 1.5rem) var(--side-gutters) calc(1.5rem + env(safe-area-inset-bottom, 0px));
   }
-  .nav__item:nth-child(1) .nav__link:nth-child(1) {
-    margin-bottom: 2.5rem;
+  .nav__list {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    margin-bottom: 3rem;
+  }
+  /* Each link rises out of its own row once the panel is down. */
+  .nav__item {
+    overflow: hidden;
   }
   .nav__link {
-    color: var(--c-font-secondary);
+    padding-block: 0.125rem;
     font-family: var(--font-title);
-    font-weight: 700;
-    font-size: 2.5rem;
-    line-height: 0.88;
+    font-size: clamp(3rem, 15vw, 5.5rem);
+    font-weight: 900;
+    letter-spacing: -0.02em;
     text-transform: uppercase;
+    color: var(--c-font-secondary);
+    transform: translateY(105%);
+    transition: transform 0.7s var(--ease-popup);
   }
-}
-.nav__bottom {
-  margin: calc(32rem / var(--fz-base)) 0 calc(24rem / var(--fz-base));
-}
-.header__btn-mobile {
-  width: 21px;
-  height: 15px;
-  position: relative;
-  z-index: 1000;
-}
-.header__btn-mobile:before {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 250%;
-  height: 250%;
-}
-.header__btn-line {
-  display: block;
-  width: 100%;
-  height: 2px;
-  border-radius: 6px;
-  background-color: #000;
-  position: absolute;
-  left: 0;
-}
-.header__btn-line:nth-child(1) {
-  top: 0;
-  transition:
-    transform 0.3s ease-in-out,
-    top 0.2s ease-in-out 0.3s;
-}
-.header__btn-line:nth-child(1):before {
-  content: '';
-  position: absolute;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background-color: inherit;
-  border-radius: 6px;
-  transition: transform 0.1s ease-in-out 0.2s;
-}
-.header__btn-line:nth-child(2) {
-  top: 0;
-  bottom: 0;
-  margin: auto;
-  transition: opacity 0s ease-in-out 0.3s;
-}
-.header__btn-line:nth-child(3) {
-  bottom: 0;
-  transition:
-    opacity 0s ease-in-out 0.3s,
-    bottom 0.2s ease-in-out 0.3s;
-}
-.is-mob-menu-open .header__btn-line {
-  background-color: var(--c-bg-secondary);
-}
-.is-mob-menu-open .header__btn-line:nth-child(1) {
-  top: 5px;
-  transform: rotate(135deg);
-  transition:
-    top 0.3s ease-in-out,
-    transform 0.3s linear 0.3s;
-}
-.is-mob-menu-open .header__btn-line:nth-child(1):before {
-  transform: rotate(90deg);
-  transition: transform 0.1s ease-in-out 0.3s;
-}
-.is-mob-menu-open .header__btn-line:nth-child(2) {
-  opacity: 0;
-}
-.is-mob-menu-open .header__btn-line:nth-child(3) {
-  bottom: 5px;
-  opacity: 0;
-  transition:
-    bottom 0.3s ease-in-out,
-    opacity 0s ease-in-out 0.3s;
-}
-.is-mob-menu-open {
-  overflow: hidden;
+  .is-mob-menu-open .nav__link {
+    transform: translateY(0);
+    transition-delay: calc(0.2s + var(--i, 0) * 0.06s);
+  }
+  .nav__label {
+    height: 1em;
+    line-height: 1;
+  }
+  /* The active section ends in a green full stop. */
+  .nav__dot {
+    position: static;
+    order: 2;
+    align-self: flex-end;
+    width: 0.16em;
+    height: 0.16em;
+    margin: 0 0 0.1em 0.08em;
+    box-shadow: none;
+  }
+
+  .nav__footer {
+    margin-top: auto;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+  .is-mob-menu-open .nav__footer {
+    opacity: 1;
+    transition-delay: 0.5s;
+  }
+  .nav__email {
+    padding-block: 0.5rem;
+    font-size: 1.0625rem;
+    font-weight: 500;
+    overflow-wrap: anywhere;
+  }
+  .nav__socials {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 1.5rem;
+    margin-bottom: 0.5rem;
+    font-family: var(--font-typewriter);
+    font-size: 0.8125rem;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.72);
+  }
+  .nav__socials a {
+    display: inline-block;
+    padding-block: 0.75rem;
+    transition: color 0.25s;
+  }
+  .nav__socials a:active {
+    color: var(--c-brand-primary);
+  }
 }
 
 /* ---------------------------------------------------------------------------
@@ -462,48 +531,40 @@ body.is-popup-open .header {
 }
 
 /* ---------------------------------------------------------------------------
-   Contact links (mobile menu + footer + contact section)
+   Contact links — the label/value column beside the contact form
 --------------------------------------------------------------------------- */
 .contact-links {
-  width: fit-content;
-}
-.contact-links--inverse {
-  color: var(--c-font-secondary);
-}
-.contact-links__icon {
-  width: 43px;
-  height: 22px;
-}
-.contact-links__icon-bottom {
-  position: relative;
-  transform: scaleX(-1) rotate(180deg);
-}
-.contact-links__wrapper {
   display: flex;
   flex-direction: column;
-  gap: 2.1875rem;
-  margin: 1.875rem 0;
+  align-items: flex-start;
+  gap: 1.5rem;
+  max-width: 22rem;
 }
-.contact-links__text {
+.contact-links__row {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
-  font-size: 1rem;
-  line-height: 1.1;
-  transition: opacity 0.25s ease;
+  gap: 0.375rem;
 }
-.contact-links__dot {
-  width: 11px;
-  height: 11px;
-  border-radius: 50%;
-  background-color: var(--c-bg-primary);
+.contact-links__label {
+  font-family: var(--font-typewriter);
+  font-size: 0.75rem;
+  line-height: 1.2;
+  color: #6b6b6b;
 }
-.contact-links--inverse .contact-links__dot {
-  background-color: var(--c-bg-secondary);
+.contact-links__value {
+  font-size: 1.0625rem;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
 }
-.contact-links .capabilities-button-component {
-  padding: 8px 14px;
-  align-self: baseline;
+.contact-links__socials {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+}
+.contact-links__cta {
+  margin-top: 0.5rem;
 }
 .contact-link {
   position: relative;
@@ -524,34 +585,6 @@ body.is-popup-open .header {
 .contact-link:hover:after {
   transform: scaleX(1);
   transform-origin: bottom left;
-}
-.socials {
-  display: flex;
-  gap: 1rem;
-}
-.socials__link {
-  position: relative;
-  display: block;
-}
-.socials__link svg {
-  width: 18px;
-  height: 18px;
-}
-.socials__link svg path {
-  transition: fill 0.3s ease;
-}
-.socials__link:hover svg path {
-  fill: var(--c-brand-primary);
-}
-.socials__link:before {
-  content: '';
-  width: 40px;
-  height: 40px;
-  display: block;
-  position: absolute;
-  top: 30%;
-  left: 50%;
-  transform: translate(-50%, -50%);
 }
 
 /* ---------------------------------------------------------------------------

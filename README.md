@@ -50,10 +50,10 @@ Black and white, one neon green, four type roles:
 
 | role       | face (free stand-in for the reference's licensed one) | used for                          |
 | ---------- | ----------------------------------------------------- | --------------------------------- |
-| title      | Archivo 900                                           | the huge uppercase headings       |
+| title      | Archivo 900 (variable width)                          | the huge uppercase headings       |
 | cursive    | Instrument Serif italic                               | the counterpoint word in a title  |
-| text       | Inter                                                 | body copy, mid-size headings      |
-| typewriter | DM Mono                                               | every label, caption and button   |
+| text       | Instrument Sans                                       | body copy, mid-size headings      |
+| typewriter | Geist Mono                                            | every label, caption and button   |
 
 Everything is CSS custom properties on `:root` in `styles/base.css`; change
 `--c-brand-primary` to re-accent the whole site.
@@ -84,8 +84,11 @@ Everything is CSS custom properties on `:root` in `styles/base.css`; change
 - **Cases** — "Fresh Drop" has a white cover panel that slides across on
   hover; grid tiles are cut in from a corner as they scroll into view and
   round their corners on hover; every tile opens a full-screen popup with a
-  curtain-revealed gallery. Artwork is generated per case (`CaseArt`) from a
-  seed and a two-colour palette.
+  curtain-revealed gallery. The grid is 12 columns, two tiles a row — a wide
+  7-column tile beside a square 5-column one, alternating sides — so both
+  tiles in a row share a height. Artwork is generated per case (`CaseArt`)
+  from a seed and a two-colour palette; the caption under it carries the name,
+  category and year.
 - **Vision** — cursive title and big paragraph revealed per character as you
   scroll, three columns drift up, the email is typed out.
 - **Numbers** — counters in the cursive face, and the elliptical "Let's kick
@@ -109,12 +112,11 @@ is off screen, and `three` is code-split so it loads after the page.
   and would otherwise be announced run together.
 - Form text meets WCAG AA. The dimmed field labels and the idle submit button
   were at 2.2:1 and 1.7:1; they are now above 6:1.
-- **`prefers-reduced-motion: reduce`** is honoured properly: the three WebGL
-  scenes and the footer canvas never start, Lenis hands scrolling back to the
-  browser, every looping CSS keyframe and transition is neutralised, and
-  GSAP's global timeline is sped up so entrances land on their end state
-  instead of travelling. Scroll-scrubbed text reveals still follow the scroll,
-  since they are progress-driven rather than time-driven.
+- **`prefers-reduced-motion: reduce`** switches the page to a gentler mode
+  rather than turning motion off: entrances, hover feedback, transitions and
+  the WebGL scenes still play. Lenis hands scrolling back to the browser, the
+  footer canvas paints a single frame, and the looping keyframes (logo mark,
+  hero dots, vision rings, the "o" in My Core Identity) stop.
 
 ### Things worth knowing
 
