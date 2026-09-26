@@ -208,7 +208,7 @@ export default function Cases() {
 
           <div className="cases__list js-cases-list">
             {cases.map((c, i) => (
-              <div className={`cases__item ${alignClass(c.align)} ${i === 6 ? 'cases__item--center-column' : ''}`} key={c.id}>
+              <div className={`cases__item ${alignClass(c.align)}`} key={c.id}>
                 <div
                   className={`cases__subitem cases__subitem--${c.size} js-cases-item js-subcase cursor__trigger`}
                   role="button"

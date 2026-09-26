@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
-import Sortable from 'sortablejs';
+import type Sortable from 'sortablejs';
+import type { Options as SortableOptions } from 'sortablejs';
 import { gsap, SplitText } from '../lib/gsap';
 import { isDesktopDevice } from '../lib/device';
 import { waitForLoaderExitOnce } from '../lib/loader';
@@ -60,17 +61,22 @@ export default function Hero() {
       ];
 
       // Letters can be dragged between the two words, as on the reference.
+      // Desktop only, so SortableJS is fetched only there, after the loader,
+      // rather than riding in the critical bundle for every visitor.
       if (isDesktopDevice()) {
-        const opts: Sortable.Options = {
-          group: 'shared',
-          animation: 150,
-          direction: 'horizontal',
-          ghostClass: 'letter-ghost',
-          chosenClass: 'letter-chosen',
-          dragClass: 'letter-drag',
-          forceFallback: true,
-        };
-        sortables = [Sortable.create(left, opts), Sortable.create(right, opts)];
+        import('sortablejs').then(({ default: Sortable }) => {
+          if (cancelled) return;
+          const opts: SortableOptions = {
+            group: 'shared',
+            animation: 150,
+            direction: 'horizontal',
+            ghostClass: 'letter-ghost',
+            chosenClass: 'letter-chosen',
+            dragClass: 'letter-drag',
+            forceFallback: true,
+          };
+          sortables = [Sortable.create(left, opts), Sortable.create(right, opts)];
+        });
       }
     });
 

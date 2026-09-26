@@ -13,7 +13,9 @@ let instance: Lenis | null = null;
 export function startSmoothScroll(): () => void {
   if (!isDesktopDevice() || prefersReducedMotion() || instance) return () => {};
 
-  const lenis = new Lenis({ lerp: 0.05 });
+  // 0.05 was heavy enough that the page kept gliding for about a second after
+  // the wheel stopped, and every scrubbed animation lagged the input with it.
+  const lenis = new Lenis({ lerp: 0.1 });
   instance = lenis;
   lenis.on('scroll', ScrollTrigger.update);
 

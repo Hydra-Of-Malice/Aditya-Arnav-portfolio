@@ -33,7 +33,10 @@ export default function Numbers() {
             xPercent: 0,
             duration: 1,
             ease: 'latestCase',
-            scrollTrigger: { trigger: t, start: 'top+=200% bottom', end: 'bottom+=300% center', toggleActions: 'play none none reverse' },
+            // As soon as the title is on screen. It used to wait until the
+            // title was two heights into view, and "RECORD" sat parked past
+            // the left edge, cut off, the whole time before that.
+            scrollTrigger: { trigger: t, start: 'top 92%', end: 'bottom+=300% center', toggleActions: 'play none none reverse' },
           }),
         );
       }
@@ -43,16 +46,13 @@ export default function Numbers() {
         const arc = el.querySelector<HTMLElement>('.number__arc')!;
         const chars = SplitText.create(item, { type: 'chars' });
         gsap.to(el, { opacity: 1, ease: 'none', scrollTrigger: { trigger: el, start: 'top+=80% bottom', end: 'bottom+=160% bottom', scrub: 0.3 } });
-        gsap.fromTo(
-          arc,
-          { xPercent: -300 },
-          { xPercent: 0, ease: 'steps(1)', delay: 0.2, duration: 1, scrollTrigger: { trigger: el, start: 'top+=100% bottom', end: 'bottom+=300% bottom', scrub: 0.3 } },
-        );
-        gsap.fromTo(
-          chars.chars,
-          { autoAlpha: 0 },
-          { autoAlpha: 1, ease: 'steps(1)', stagger: 1, delay: 0.2, duration: 1, scrollTrigger: { trigger: el, start: 'top+=100% bottom', end: 'bottom+=300% bottom', scrub: 0.3 } },
-        );
+        // Digits type in, then the closing bracket lands. The bracket used to
+        // wait three widths to the left, on top of the "(" and the label, so
+        // mid-scroll the counters read as ")(8." and similar.
+        gsap
+          .timeline({ scrollTrigger: { trigger: el, start: 'top+=100% bottom', end: 'bottom+=300% bottom', scrub: 0.3 } })
+          .fromTo(chars.chars, { autoAlpha: 0 }, { autoAlpha: 1, ease: 'steps(1)', stagger: 1, duration: 1 })
+          .fromTo(arc, { autoAlpha: 0 }, { autoAlpha: 1, ease: 'steps(1)', duration: 1 });
       });
 
       /* Elliptical button */

@@ -117,12 +117,16 @@ export default function WhatIDo() {
       if (desktop) {
         let xTo: ReturnType<typeof gsap.quickTo> | undefined;
         let yTo: ReturnType<typeof gsap.quickTo> | undefined;
+        // The opened card is 228 x 276 and hangs off the pointer by its corner;
+        // keep it inside the window when the grid sits low on screen.
+        const fitX = (x: number) => Math.min(x, window.innerWidth - 228 - 12);
+        const fitY = (y: number) => Math.min(y, window.innerHeight - 276 - 12);
         const follow = (e: MouseEvent) => {
-          xTo?.(e.clientX);
-          yTo?.(e.clientY);
+          xTo?.(fitX(e.clientX));
+          yTo?.(fitY(e.clientY));
         };
         on(box, 'mouseenter', (e) => {
-          gsap.set(hint, { x: e.clientX, y: e.clientY });
+          gsap.set(hint, { x: fitX(e.clientX), y: fitY(e.clientY) });
           gsap.to(hint, { opacity: 1, scale: 1, duration: 0.3 });
           xTo = gsap.quickTo(hint, 'x', { duration: 0.6, ease: 'power3' });
           yTo = gsap.quickTo(hint, 'y', { duration: 0.6, ease: 'power3' });

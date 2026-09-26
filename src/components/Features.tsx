@@ -100,9 +100,13 @@ export default function Features() {
         // Nothing to measure or tear down while the scene is already hidden,
         // which is the case for almost every pointer move on the page.
         let shown = false;
+        // The box hangs off the pointer by its top-left corner, so near the
+        // right or bottom edge it used to run out of the window and get cut.
+        const fitX = (x: number) => Math.max(0, Math.min(x, window.innerWidth - box.offsetWidth - 16));
+        const fitY = (y: number) => Math.max(0, Math.min(y, window.innerHeight - box.offsetHeight - 16));
         const move = (e: MouseEvent) => {
-          xTo?.(e.clientX);
-          yTo?.(e.clientY);
+          xTo?.(fitX(e.clientX));
+          yTo?.(fitY(e.clientY));
         };
         const showBox = (x: number, y: number) => {
           // Under reduced motion the rows still highlight, but nothing flies in
@@ -111,7 +115,7 @@ export default function Features() {
           hide?.kill();
           shown = true;
           setHovering(true);
-          gsap.set(box, { x, y });
+          gsap.set(box, { x: fitX(x), y: fitY(y) });
           show = gsap
             .timeline()
             .to(box, { opacity: 1, scale: 1, duration: 0.25, ease: 'power2.out' })

@@ -38,7 +38,9 @@
 .about__text {
   position: relative;
   z-index: 1;
-  margin-top: calc(12rem / var(--fz-base));
+  /* Scales with the name above it; a flat 12px let the 150px letters touch
+     the first line on large screens. */
+  margin-top: clamp(0.75rem, 1.25vw, 1.75rem);
   margin-bottom: clamp(0.625rem, 1.7188vw, 2.0625rem);
 }
 .about__subtitle {
@@ -427,35 +429,23 @@
   position: relative;
   min-height: clamp(18rem, 28vw, 34rem);
 }
+/* Inside the gutter at every size. It used to sit at a negative `left`
+   (-5%, -20% or -4% by breakpoint), which cut the cursive W off at the left
+   edge whenever the word was on screen. */
 .wwd__title > .title:nth-child(1) {
   position: absolute;
   top: clamp(5.9375rem, 6.8229vw, 8.1875rem);
-  left: -5%;
+  left: var(--side-gutters);
   z-index: 10;
   font-size: clamp(7.5rem, 15.1vw, 18.125rem);
   padding-right: 10px;
-}
-@media (max-width: 767px) {
-  .wwd__title > .title:nth-child(1) {
-    left: -20%;
-  }
-}
-@media (max-width: 480px) {
-  .wwd__title > .title:nth-child(1) {
-    left: -4%;
-  }
 }
 .wwd__title > .title:nth-child(2),
 .wwd__title > .title:nth-child(3) {
   line-height: 0.88;
   font-size: clamp(7.5rem, 12.5vw, 15rem);
 }
-/* On touch layouts the words now come to rest while on screen (see
-   WhatIDo.tsx), so nothing may be parked past an edge: the negative `left`
-   cut the cursive W off, and at 120px "DO" ran past a 320px screen. */
-.is-mobile .wwd__title > .title:nth-child(1) {
-  left: var(--side-gutters);
-}
+/* At 120px "DO" ran past a 320px screen. */
 @media (max-width: 480px) {
   .wwd__title > .title:nth-child(2),
   .wwd__title > .title:nth-child(3) {
@@ -1092,18 +1082,25 @@
   .cases__item--align-top {
     align-self: flex-start;
   }
+  /* Bottom of its row, by alignment rather than translateY(24%): the
+     translate pushed the tile past its row, and on wide screens the tile
+     below covered its caption. */
   .cases__item--align-bottom {
-    transform: translateY(24%);
-    margin-bottom: clamp(0.625rem, 7.2396vw, 8.6875rem);
+    align-self: flex-end;
   }
   .cases__item--align-center {
     transform: translateY(12%);
   }
+  /* Last row: the ninth case used to sit in the middle column, jammed
+     against the eighth, with an empty hole down the right edge. It takes the
+     right column instead, mirroring the big tile opposite. */
+  .cases__item:nth-child(8) {
+    grid-column: 3;
+    align-self: center;
+    justify-content: flex-end;
+  }
 }
 @media (min-width: 1440px) {
-  .cases__item--align-bottom {
-    margin-bottom: 0;
-  }
   .cases__item:nth-child(7) {
     margin-top: clamp(0.625rem, 7.2396vw, 8.6875rem);
   }
@@ -1920,6 +1917,12 @@
   flex-wrap: wrap;
   gap: 0 0.25em;
 }
+/* It enters at scaleX(1.1). From the centre that pushed "MY" past the left
+   edge of wide screens during the wipe; the title is left-aligned, so grow
+   it from the left. */
+.team__title.title-js {
+  transform-origin: left center;
+}
 /* The 5rem floor made "IDENTITY" about 440px wide, so on phones it ran off
    the edge and was cut by the section's overflow. 15vw keeps it inside the
    gutters down to 320px, including the 1.1 scaleX it enters with. */
@@ -2275,6 +2278,8 @@
   display: block;
   line-height: 0.88;
   letter-spacing: -0.01em;
+  /* The copyright line sat flush against the digits' descent. */
+  margin-bottom: 0.625rem;
 }
 .footer__link {
   display: block;

@@ -159,5 +159,6 @@ is off screen, and `three` is code-split so it loads after the page.
   card. Needs a 1200×630 asset in `public/`.
 - `apple-touch-icon` points at the SVG favicon, which iOS ignores; it wants a
   180×180 PNG.
-- The critical JS chunk is ~519 kB (GSAP plugins plus SortableJS). Splitting
-  the below-the-fold plugins behind a dynamic import would trim it.
+- The critical JS chunk is ~486 kB, mostly the GSAP plugins (SortableJS is
+  already loaded on demand, desktop only). Splitting the below-the-fold
+  plugins behind a dynamic import would trim it further.

@@ -29,14 +29,18 @@ export default function Cta({ href = '#contact', text = 'Got Project?', script =
 
     let xTo: ReturnType<typeof gsap.quickTo> | undefined;
     let yTo: ReturnType<typeof gsap.quickTo> | undefined;
+    // Kept inside the window: the section is full width, so hovering near
+    // its right edge pushed the pill off screen.
+    const fitX = (x: number) => (hint ? Math.min(x, window.innerWidth - hint.offsetWidth - 12) : x);
+    const fitY = (y: number) => (hint ? Math.min(y, window.innerHeight - hint.offsetHeight - 12) : y);
     const follow = (e: MouseEvent) => {
-      xTo?.(e.clientX);
-      yTo?.(e.clientY);
+      xTo?.(fitX(e.clientX));
+      yTo?.(fitY(e.clientY));
     };
 
     const showHint = (x: number, y: number) => {
       if (!hint) return;
-      gsap.set(hint, { x, y, visibility: 'visible' });
+      gsap.set(hint, { x: fitX(x), y: fitY(y), visibility: 'visible' });
       gsap.to(hint, { opacity: 1, scale: 1, duration: 0.2 });
       xTo = gsap.quickTo(hint, 'x', { duration: 0.6, ease: 'power3' });
       yTo = gsap.quickTo(hint, 'y', { duration: 0.6, ease: 'power3' });
