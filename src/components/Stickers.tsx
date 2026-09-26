@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { gsap, SplitText } from '../lib/gsap';
+import { prefersReducedMotion } from '../lib/device';
 import { stickers } from '../site';
 import Cta from './Cta';
 
@@ -55,10 +56,19 @@ export default function Stickers() {
     const subtitle = section.querySelector<HTMLElement>('.stickers-subtitle-js')!;
     const words = section.querySelectorAll('.stickers-word-js');
 
-    // Each sticker shows for 0.42s, then the next.
+    // Each sticker shows for 0.42s, then the next. Only while the box is on
+    // screen, and never under reduced motion: GSAP runs 200x fast there, which
+    // turned this loop into a strobe that changed sticker every frame.
     const each = 0.42;
-    const flash = gsap.timeline({ repeat: -1 });
     gsap.set(imgs, { opacity: 0 });
+    gsap.set(imgs[0], { opacity: 1 });
+    const flash = gsap.timeline({
+      repeat: -1,
+      paused: true,
+      scrollTrigger: prefersReducedMotion()
+        ? undefined
+        : { trigger: section, start: 'top bottom', end: 'bottom top', toggleActions: 'play pause resume pause' },
+    });
     imgs.forEach((img, i) => {
       flash.set(img, { opacity: 1 }, i * each).set(img, { opacity: 0 }, (i + 1) * each);
     });
@@ -86,6 +96,7 @@ export default function Stickers() {
       .to(words[1], { opacity: 1, duration: 0.5 });
 
     return () => {
+      flash.scrollTrigger?.kill();
       flash.kill();
       chars.scrollTrigger?.kill();
       chars.kill();

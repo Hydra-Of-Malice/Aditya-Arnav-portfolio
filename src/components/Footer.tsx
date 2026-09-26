@@ -19,7 +19,11 @@ function FooterCanvas() {
       canvas.height = Math.max(1, Math.floor(canvas.clientHeight / 3));
     };
     resize();
-    const ro = new ResizeObserver(resize);
+    // Resizing a canvas clears it; the still frame has no loop to repaint it.
+    const ro = new ResizeObserver(() => {
+      resize();
+      if (still) draw();
+    });
     ro.observe(canvas);
     const blobs = [
       { c: '#00fb96', r: 0.5, s: 0.6 },

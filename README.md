@@ -113,8 +113,11 @@ is off screen, and `three` is code-split so it loads after the page.
   scenes and the footer canvas never start, Lenis hands scrolling back to the
   browser, every looping CSS keyframe and transition is neutralised, and
   GSAP's global timeline is sped up so entrances land on their end state
-  instead of travelling. Scroll-scrubbed text reveals still follow the scroll,
-  since they are progress-driven rather than time-driven.
+  instead of travelling. Because of that speed-up, the infinite GSAP loops
+  (the sticker flash, the kick-off stars, the Features word swap) are not
+  started at all — at 200× they strobed every frame. Scroll-scrubbed text
+  reveals still follow the scroll, since they are progress-driven rather than
+  time-driven.
 
 ### Things worth knowing
 
@@ -128,6 +131,19 @@ is off screen, and `three` is code-split so it loads after the page.
   context's own cleanup fires — without that they accumulate on each remount.
 - Only the open case popup is mounted. Keeping all nine in the DOM cost about
   1,100 nodes, a third of the page, for markup nobody had opened.
+- An open dialog makes `#content`, the header and the footer `inert`, so a
+  dialog must never render inside them: the case popup is portalled to
+  `<body>` (rendered in place it went inert with the page — its close button,
+  links and gallery scroll all stopped responding).
+- Never add a class imperatively to an element whose `className` React
+  renders from state: the next re-render wipes it. The résumé popup's `open`
+  class is part of its rendered `className` for that reason.
+- GSAP transforms on SVG *children* bake their own origin offset, and a CSS
+  `transform-origin` / `transform-box` on the same element is applied on top.
+  The dot grid highlights with a CSS class instead.
+- SplitText splits that animate `chars` also split `words`; chars on their
+  own are inline-blocks and let the browser break a word between any two
+  letters.
 - `.block-form__head` waits at `translateX(50%)` until its trigger fires, so
   `.block-form` is `overflow-x: clip`; `html`/`body` carry the same guard.
 - `<main>` waits for `document.fonts.ready` (racing a 2s timeout) before it

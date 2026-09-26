@@ -39,6 +39,11 @@ export default function App() {
     waitForLoaderComplete().then(() => {
       if (cancelled) return;
       stop = startSmoothScroll();
+      // Triggers refresh in creation order, and the footer's are created
+      // before <main> has any content (it waits for the fonts). Sorting by
+      // position first lets the footer account for the pinned Features
+      // section on touch devices instead of firing early by its pin length.
+      ScrollTrigger.sort();
       ScrollTrigger.refresh();
     });
 

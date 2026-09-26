@@ -28,7 +28,9 @@ export default function Identity() {
 
       /* Typed paragraph */
       const text = section.querySelector<HTMLElement>('.js-team-text')!;
-      const split = SplitText.create(text, { type: 'lines, chars', linesClass: 'line' });
+      // 'words' as well: chars on their own are inline-blocks, so the browser
+      // was free to wrap between any two letters and broke words mid-way.
+      const split = SplitText.create(text, { type: 'lines, words, chars', linesClass: 'line' });
       const mobile = window.innerWidth < 768;
       gsap.fromTo(
         split.chars,
@@ -45,20 +47,41 @@ export default function Identity() {
       /* Draggable strip */
       const slider = section.querySelector<HTMLElement>('.js-team-slider')!;
       const strip = section.querySelector<HTMLElement>('.js-team-dragable')!;
-      gsap.set(slider, { xPercent: 70 });
-      gsap.to(slider, { xPercent: 35, duration: 2, scrollTrigger: { trigger: slider, start: 'top bottom', end: 'bottom+=10% center', toggleActions: 'play none none reverse' } });
-      const minX = slider.clientWidth - strip.scrollWidth - 0.35 * slider.clientWidth;
-      Draggable.create(strip, { type: 'x', bounds: { minX, maxX: 0 }, inertia: true, edgeResistance: 0.75, minimumMovement: 0 });
+      // Where the strip comes to rest, as a fraction of the slider. On a phone
+      // the desktop 35% inset left room for a single card, so it sits flush.
+      const rest = mobile ? 0 : 0.35;
+      gsap.set(slider, { xPercent: rest * 100 + 35 });
+      gsap.to(slider, { xPercent: rest * 100, duration: 2, scrollTrigger: { trigger: slider, start: 'top bottom', end: 'bottom+=10% center', toggleActions: 'play none none reverse' } });
+      // Recomputed on resize: the strip's travel depends on the slider width.
+      const getMinX = () => Math.min(0, slider.clientWidth - strip.scrollWidth - rest * slider.clientWidth);
+      let minX = getMinX();
+      const [drag] = Draggable.create(strip, { type: 'x', bounds: { minX, maxX: 0 }, inertia: true, edgeResistance: 0.75, minimumMovement: 0 });
+
+      // Listeners added inside a gsap.context() are not removed by revert().
+      const ac = new AbortController();
+      window.addEventListener(
+        'resize',
+        () => {
+          minX = getMinX();
+          drag.applyBounds({ minX, maxX: 0 });
+        },
+        { signal: ac.signal },
+      );
 
       // Arrow keys move the same axis, so the strip is not pointer-only.
       const step = 180;
-      strip.addEventListener('keydown', (e) => {
-        const dir = e.key === 'ArrowRight' ? -1 : e.key === 'ArrowLeft' ? 1 : 0;
-        if (!dir) return;
-        e.preventDefault();
-        const next = Math.max(minX, Math.min(0, (Number(gsap.getProperty(strip, 'x')) || 0) + dir * step));
-        gsap.to(strip, { x: next, duration: 0.4, ease: 'power2.out' });
-      });
+      strip.addEventListener(
+        'keydown',
+        (e) => {
+          const dir = e.key === 'ArrowRight' ? -1 : e.key === 'ArrowLeft' ? 1 : 0;
+          if (!dir) return;
+          e.preventDefault();
+          const next = Math.max(minX, Math.min(0, (Number(gsap.getProperty(strip, 'x')) || 0) + dir * step));
+          gsap.to(strip, { x: next, duration: 0.4, ease: 'power2.out', onUpdate: () => drag.update() });
+        },
+        { signal: ac.signal },
+      );
+      return () => ac.abort();
     }, section);
     return () => ctx.revert();
   }, []);

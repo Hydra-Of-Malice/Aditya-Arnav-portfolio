@@ -450,6 +450,18 @@
   line-height: 0.88;
   font-size: clamp(7.5rem, 12.5vw, 15rem);
 }
+/* On touch layouts the words now come to rest while on screen (see
+   WhatIDo.tsx), so nothing may be parked past an edge: the negative `left`
+   cut the cursive W off, and at 120px "DO" ran past a 320px screen. */
+.is-mobile .wwd__title > .title:nth-child(1) {
+  left: var(--side-gutters);
+}
+@media (max-width: 480px) {
+  .wwd__title > .title:nth-child(2),
+  .wwd__title > .title:nth-child(3) {
+    font-size: clamp(5rem, 30vw, 7.5rem);
+  }
+}
 .wwd__title > .title:nth-child(2) {
   margin-left: clamp(3.5rem, 26.6667vw, 32rem);
   position: relative;
@@ -593,6 +605,10 @@
 .dots circle.cursor__trigger {
   transition: none;
   -webkit-tap-highlight-color: transparent;
+}
+.dots circle.is-active {
+  fill: var(--c-brand-primary);
+  transform: scale(2);
 }
 @media (max-width: 1024px) {
   .dots circle.cursor__trigger {
@@ -983,9 +999,11 @@
 .cases {
   margin-bottom: clamp(4.5625rem, 16.3542vw, 19.625rem);
 }
+/* Was -13px, which slid the "Fresh Drop" artwork over the bottom edge of the
+   résumé card that closes the Features section. */
 @media (min-width: 1025px) {
   .cases {
-    margin-top: -13px;
+    margin-top: clamp(2.5rem, 5.2083vw, 6.25rem);
   }
 }
 .cases__title {
@@ -1324,6 +1342,9 @@
   gap: 1rem;
   margin-top: 1rem;
 }
+.popup__tags {
+  margin-top: 1.5rem;
+}
 .popup__links a {
   font-family: var(--font-typewriter);
   text-transform: uppercase;
@@ -1548,6 +1569,18 @@
 .aims__bg canvas {
   width: 100% !important;
   height: 100% !important;
+}
+/* On phones and tablets (and any tall viewport, since the meadow is 100vh)
+   the paragraphs land on top of the meadow, white on pale spheres. Dim the
+   scene there, and give the copy a soft shadow everywhere. */
+@media (max-width: 1023px) {
+  .aims__bg canvas {
+    opacity: 0.45;
+  }
+}
+.aims__subtitle,
+.aims__small-title {
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.75);
 }
 .aims__bg:after {
   content: '';
@@ -1887,6 +1920,14 @@
   flex-wrap: wrap;
   gap: 0 0.25em;
 }
+/* The 5rem floor made "IDENTITY" about 440px wide, so on phones it ran off
+   the edge and was cut by the section's overflow. 15vw keeps it inside the
+   gutters down to 320px, including the 1.1 scaleX it enters with. */
+@media (max-width: 767px) {
+  .team__title {
+    font-size: 15vw;
+  }
+}
 .team__title .title--combined {
   position: relative;
 }
@@ -1923,9 +1964,11 @@
   font-size: clamp(1.125rem, 1.4583vw, 1.75rem);
 }
 @media (max-width: 767px) {
+  /* Clear of the title (a negative margin sat "AN ENGINEER" on top of
+     IDENTITY), and with room on the right for the staggered offsets below. */
   .team__description {
-    margin-right: 0;
-    margin-top: -16px;
+    margin-right: calc(40rem / var(--fz-base));
+    margin-top: 1rem;
   }
 }
 .team__word {
@@ -2128,7 +2171,9 @@
 .block-form__success {
   flex-direction: column;
   flex-grow: 1;
-  justify-content: center;
+  /* Top, not centred: centred in a ~1000px-tall form it sat off screen. */
+  justify-content: flex-start;
+  padding-top: clamp(1rem, 4vw, 4rem);
   opacity: 0;
   visibility: hidden;
   transition: 0.3s all 0.28s ease-in-out;
@@ -2176,22 +2221,24 @@
     gap: 0;
   }
 }
+/* In flow beside the left column. It used to be absolutely placed at 35% of
+   the width, which put it under the 42vw-wide canvas: the canvas (z-index 10)
+   covered the social row and swallowed clicks on LinkedIn, GitHub and
+   LeetCode, and a column taller than the left one was clipped. */
 .footer__right {
-  width: 100%;
-  margin-left: auto;
-  transform: translateX(35%);
-  position: absolute;
-  right: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+  position: relative;
+  padding-right: var(--side-gutters);
 }
 @media (max-width: 1023px) {
   .footer__right {
     margin-bottom: 3.75rem;
-    position: relative;
-    transform: none;
     padding-inline: var(--side-gutters);
   }
 }
 .footer__left {
+  flex: none;
   display: flex;
   flex-direction: column;
   align-items: center;

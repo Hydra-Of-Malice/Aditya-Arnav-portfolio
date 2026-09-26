@@ -45,19 +45,25 @@ export default function WhatIDo() {
       gsap.set(titles[0], { xPercent: 120 });
       gsap.set(titles[1], { xPercent: 20 });
       gsap.set(titles[2], { xPercent: 60 });
+      // On a phone there is no spare width: drifting in all the way until the
+      // title leaves the top of the screen kept "DO" hanging off the right
+      // edge the whole time it was readable, so there it lands mid-screen.
+      const titleEnd = isDesktopDevice() ? 'bottom top' : 'top 45%';
       titles.forEach((t, i) => {
         gsap.to(t, {
           xPercent: 0,
           duration: 2,
           ease: 'power2.out',
-          scrollTrigger: { trigger: t, start: 'top bottom', end: 'bottom top', scrub: i === 2 ? 0.6 : 0.3 },
+          scrollTrigger: { trigger: t, start: 'top bottom', end: titleEnd, scrub: i === 2 ? 0.6 : 0.3 },
         });
       });
 
       /* Typewriter paragraph. */
       const textBox = section.querySelector<HTMLElement>('.js-wwd-text')!;
       const inner = textBox.querySelector<HTMLElement>('.wwd__text-inner')!;
-      const split = SplitText.create(inner, { type: 'lines, chars', linesClass: 'line' });
+      // 'words' as well: chars on their own are inline-blocks, so the browser
+      // was free to wrap between any two letters and broke words mid-way.
+      const split = SplitText.create(inner, { type: 'lines, words, chars', linesClass: 'line' });
       gsap.fromTo(
         split.chars,
         { autoAlpha: 0 },
@@ -155,14 +161,16 @@ export default function WhatIDo() {
 
         hits.forEach((hit) => {
           const dot = hit.previousElementSibling as SVGCircleElement;
+          // A class, not a GSAP scale: GSAP bakes its own origin offset into an
+          // SVG transform, and the CSS `transform-box: fill-box` origin applied
+          // on top of it, so the hovered dot jumped to the grid's top-left.
           on(hit, 'mouseenter', () => {
-            gsap.set(hit, { zIndex: 100 });
-            gsap.set(dot, { scale: 2, fill: '#00FB96', transformOrigin: 'center center' });
+            dot.classList.add('is-active');
             randomQuote();
             open.restart();
           });
           on(hit, 'mouseleave', () => {
-            gsap.set(dot, { scale: 1, fill: '#151515' });
+            dot.classList.remove('is-active');
             open.reverse();
             hint.classList.remove('opened');
           });

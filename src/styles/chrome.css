@@ -570,6 +570,11 @@ body.is-popup-open .header {
   pointer-events: none;
   z-index: 1000;
   scrollbar-width: none;
+  /* Without a scrim the page stayed fully lit around the card, including the
+     hero's own "GET YOUR COPY" card peeking out beside it. */
+  background-color: rgba(0, 0, 0, 0.6);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
 }
 .popup-capabilities.open {
   pointer-events: all;
@@ -809,6 +814,14 @@ body.is-popup-open .header {
   position: absolute;
   top: 1.25rem;
   left: 1.25rem;
+  /* Bounded on the right too, so a long label wraps inside the pill instead
+     of running past it (and past the screen at 320px). */
+  right: 1.25rem;
+}
+@media (max-width: 359px) {
+  .form-contact__label {
+    font-size: 0.875rem;
+  }
 }
 /* The optional site field is a footnote inside the company field, so it keeps
    the small mono face rather than inheriting the cursive display treatment

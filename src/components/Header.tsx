@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { gsap } from '../lib/gsap';
-import { waitForLoaderComplete, waitForLoaderExitOnce } from '../lib/loader';
+import { waitForLoaderExitOnce } from '../lib/loader';
 import { scrollToHash } from '../lib/smoothScroll';
 import { footer, nav, person } from '../site';
 import ContactLinks from './ContactLinks';
@@ -19,14 +19,15 @@ export default function Header() {
     const header = root.current!;
     let cancelled = false;
 
+    const items = header.querySelectorAll('.nav-item-js, #logo, .header__cta');
+    gsap.set(items, { yPercent: -120, opacity: 0 });
     waitForLoaderExitOnce().then(() => {
       if (cancelled) return;
-      gsap.to(header, { opacity: 1, duration: 0, delay: 1 });
-    });
-    waitForLoaderComplete().then(() => {
-      if (cancelled) return;
-      const items = header.querySelectorAll('.nav-item-js, #logo, .header__cta');
-      gsap.fromTo(items, { yPercent: -120, opacity: 0 }, { yPercent: 0, opacity: 1, stagger: 0.08, duration: 0.8, ease: 'power3.out', delay: 0.3 });
+      // The header used to fade in a full second after the items had started
+      // dropping, so half their entrance played while it was invisible. Show
+      // it with the curtains and drop the items in as they finish opening.
+      gsap.set(header, { opacity: 1 });
+      gsap.to(items, { yPercent: 0, opacity: 1, stagger: 0.08, duration: 0.8, ease: 'power3.out', delay: 0.9 });
     });
 
     const onScroll = () => header.classList.toggle('header-animation', window.scrollY > 80);
@@ -40,6 +41,10 @@ export default function Header() {
 
   useEffect(() => {
     document.body.classList.toggle('is-mob-menu-open', open);
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
   }, [open]);
 
   const go = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {

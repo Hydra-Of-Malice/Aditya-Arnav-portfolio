@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import Sortable from 'sortablejs';
 import { gsap, SplitText } from '../lib/gsap';
+import { isDesktopDevice } from '../lib/device';
 import { waitForLoaderExitOnce } from '../lib/loader';
 import { person, resumeCta } from '../site';
 import { useInView, useReducedMotion } from '../lib/hooks';
@@ -35,10 +36,13 @@ export default function Hero() {
 
     let split: SplitText | undefined;
     let sortables: Sortable[] = [];
+    let intro: gsap.core.Animation[] = [];
     let cancelled = false;
 
     gsap.set(scene, { scale: 0 });
-    gsap.set(letters, { yPercent: 100 });
+    // Past 100%: the word masks carry 0.05em of padding, so at exactly 100%
+    // the top of every waiting letter showed as a sliver under the mask.
+    gsap.set(letters, { yPercent: 130 });
     gsap.set(mark, { autoAlpha: 0 });
     split = SplitText.create(subtitle, { type: 'lines', linesClass: 'line' });
     gsap.set(split.lines, { yPercent: 100, opacity: 0 });
@@ -46,15 +50,17 @@ export default function Hero() {
     waitForLoaderExitOnce().then(() => {
       if (cancelled) return;
       setSceneOn(true);
-      gsap.to(scene, { scale: 1, duration: 1, delay: 0.25 });
-      gsap
-        .timeline({ delay: 1.2 })
-        .to(letters, { yPercent: 0, stagger: 0.1, duration: 0.97, ease: 'branding' })
-        .to(split!.lines, { yPercent: 0, opacity: 1, stagger: 0.4, duration: 0.9, delay: 0.6, ease: 'branding' }, 0)
-        .to(mark, { autoAlpha: 1, duration: 0.6 }, 2.3);
+      intro = [
+        gsap.to(scene, { scale: 1, duration: 1, delay: 0.25 }),
+        gsap
+          .timeline({ delay: 1.2 })
+          .to(letters, { yPercent: 0, stagger: 0.1, duration: 0.97, ease: 'branding' })
+          .to(split!.lines, { yPercent: 0, opacity: 1, stagger: 0.4, duration: 0.9, delay: 0.6, ease: 'branding' }, 0)
+          .to(mark, { autoAlpha: 1, duration: 0.6 }, 2.3),
+      ];
 
       // Letters can be dragged between the two words, as on the reference.
-      if (window.innerWidth >= 1025) {
+      if (isDesktopDevice()) {
         const opts: Sortable.Options = {
           group: 'shared',
           animation: 150,
@@ -70,6 +76,7 @@ export default function Hero() {
 
     return () => {
       cancelled = true;
+      intro.forEach((a) => a.kill());
       sortables.forEach((s) => s.destroy());
       split?.revert();
     };

@@ -29,6 +29,15 @@ export default function CasePopup({ c, open, onClose }: Props) {
     gsap.set(popup, { yPercent: 100 });
     gsap.set(curtains, { scaleY: 1 });
     gsap.set(close, { opacity: 0 });
+    // Unmounted while still open (the page remounts its sections when the
+    // layout flips between desktop and touch): hand the page back.
+    return () => {
+      if (!wasOpen.current) return;
+      wasOpen.current = false;
+      unlockScroll();
+      setBackgroundInert(false);
+      document.body.classList.remove('is-popup-open');
+    };
   }, []);
 
   useEffect(() => {
@@ -36,30 +45,40 @@ export default function CasePopup({ c, open, onClose }: Props) {
     const curtains = popup.querySelectorAll('.js-popup-curtain');
     const close = popup.querySelector<HTMLElement>('.js-close-popup-btn');
     const scroller = popup.querySelector<HTMLElement>('.js-popup-scroll-content');
+    gsap.killTweensOf([popup, close, ...curtains]);
 
     if (open) {
-      wasOpen.current = true;
-      opener.current = document.activeElement as HTMLElement | null;
-      lockScroll();
-      setBackgroundInert(true);
+      // Guarded so StrictMode's double-run does not stop Lenis / record the
+      // scroll position twice.
+      if (!wasOpen.current) {
+        wasOpen.current = true;
+        opener.current = document.activeElement as HTMLElement | null;
+        lockScroll();
+        setBackgroundInert(true);
+      }
       document.body.classList.add('is-popup-open');
       popup.classList.add('active');
       if (scroller) scroller.scrollTop = 0;
+      if (popup.scrollTop) popup.scrollTop = 0;
       // Move focus into the sheet, otherwise Tab continues through the page
       // behind it.
-      setTimeout(() => (close as HTMLElement | null)?.focus?.(), 60);
+      const focusT = setTimeout(() => close?.focus({ preventScroll: true }), 60);
       gsap.to(popup, { yPercent: 0, duration: 1, ease: 'popup' });
       gsap.to(curtains, { delay: 1, scaleY: 0, duration: 1 });
       gsap.to(close, { opacity: 1, delay: 1.5, duration: 0.8 });
       const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
       document.addEventListener('keydown', onKey);
-      return () => document.removeEventListener('keydown', onKey);
+      return () => {
+        clearTimeout(focusT);
+        document.removeEventListener('keydown', onKey);
+      };
     }
 
     if (!wasOpen.current) return;
+    wasOpen.current = false;
     unlockScroll();
     setBackgroundInert(false);
-    opener.current?.focus?.();
+    opener.current?.focus?.({ preventScroll: true });
     gsap.to(close, { opacity: 0, duration: 0.3 });
     gsap.to(popup, { yPercent: 100, duration: 0.75, ease: 'popup' });
     gsap.to(curtains, { scaleY: 1, delay: 0.75, duration: 0.75 });

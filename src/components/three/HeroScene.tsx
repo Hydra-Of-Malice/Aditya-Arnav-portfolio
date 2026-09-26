@@ -1,7 +1,26 @@
-import { useRef } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { useEffect, useRef } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
 import { MeshDistortMaterial, Sparkles } from '@react-three/drei';
 import * as THREE from 'three';
+
+/**
+ * Where the pointer is over the window, in -1..1 on both axes. Read from the
+ * window rather than R3F's `pointer`: the canvas sits under the hero text with
+ * `pointer-events: none`, so R3F never received a move and the parallax was
+ * frozen at the centre.
+ */
+function useWindowPointer() {
+  const pointer = useRef({ x: 0, y: 0 });
+  useEffect(() => {
+    const onMove = (e: PointerEvent) => {
+      pointer.current.x = (e.clientX / window.innerWidth) * 2 - 1;
+      pointer.current.y = -((e.clientY / window.innerHeight) * 2 - 1);
+    };
+    window.addEventListener('pointermove', onMove, { passive: true });
+    return () => window.removeEventListener('pointermove', onMove);
+  }, []);
+  return pointer;
+}
 
 /**
  * Stands in for the reference's cinematic hero footage: a slowly breathing
@@ -10,9 +29,10 @@ import * as THREE from 'three';
  */
 function Blob() {
   const group = useRef<THREE.Group>(null);
-  const { pointer } = useThree();
+  const pointerRef = useWindowPointer();
 
   useFrame((state, delta) => {
+    const pointer = pointerRef.current;
     const g = group.current;
     if (!g) return;
     g.rotation.y += delta * 0.08;

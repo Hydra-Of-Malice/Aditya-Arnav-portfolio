@@ -28,7 +28,9 @@ export default function Loader() {
       .set(line, { opacity: 0 }, 0)
       .to(curtains, { scaleY: 0, duration: 1, ease: 'power1.inOut' }, 0.3)
       .call(markLoaderExited, undefined, 0)
-      .set(loader, { zIndex: -1, opacity: 0 }, 1.5);
+      // autoAlpha, not just opacity: a full-screen fixed layer left at
+      // visibility: visible still takes clicks wherever the page is see-through.
+      .set(loader, { zIndex: -1, autoAlpha: 0 }, 1.5);
 
     let creep: gsap.core.Tween | null = null;
     let loaded = false;

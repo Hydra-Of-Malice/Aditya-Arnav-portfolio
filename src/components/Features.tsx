@@ -71,6 +71,9 @@ export default function Features() {
         gsap.set(b, { yPercent: 100, opacity: 0 });
         swap(a, wa, ia, 'down');
         swap(b, wb, ib, 'down');
+        // Reduced motion keeps the first pair of words rather than swapping
+        // them every second.
+        if (reduced) return;
         intervals.push(
           window.setInterval(() => {
             if (!onScreen) return;
@@ -137,6 +140,23 @@ export default function Features() {
         };
         if (!reduced) on(window, 'mousemove', outside);
 
+        // Where the pointer is now; the scene is placed here when it appears,
+        // not where the pointer was when the hover delay started.
+        const pointer = { x: 0, y: 0 };
+        on(window, 'mousemove', (e) => {
+          pointer.x = e.clientX;
+          pointer.y = e.clientY;
+        });
+        const timers = new Set<number>();
+        const later = (fn: () => void, ms: number) => {
+          const t = window.setTimeout(() => {
+            timers.delete(t);
+            fn();
+          }, ms);
+          timers.add(t);
+          return t;
+        };
+
         frames.forEach((frame, i) => {
           const top = frame.querySelector<HTMLElement>('.feature__text--top')!;
           const bottom = frame.querySelector<HTMLElement>('.feature__text--bottom')!;
@@ -152,45 +172,57 @@ export default function Features() {
             .to(bg, { scaleX: 1, duration: 0.75, ease: 'power2.out' }, 0)
             .to(top, { yPercent: -150, duration: 0.3, ease: 'branding' }, 0)
             .to(bottom, { yPercent: 0, duration: 0.75, ease: 'branding' }, 0);
-          const leave = gsap
-            .timeline({ paused: true })
-            .to(bg, { scaleX: 0.5, duration: 0.375, ease: 'power1.in' })
-            .to(bg, { opacity: 0, duration: 0.5, ease: 'power1.in' })
-            .set(top, { yPercent: 0, color: '' })
-            .set(bottom, { yPercent: 200, color: '' });
+          let leave: gsap.core.Timeline | null = null;
+          // Both hover delays belong to this row; leaving cancels them, or the
+          // scene would pop up beside a row the pointer had already left.
+          let pending: number[] = [];
+          const cancelPending = () => {
+            pending.forEach((t) => {
+              clearTimeout(t);
+              timers.delete(t);
+            });
+            pending = [];
+          };
 
           ScrollTrigger.create({ trigger: frame, start: 'top bottom', end: 'bottom top', onLeave: hideBox, onLeaveBack: hideBox });
 
-          on(frame, 'mouseenter', (e) => {
-            setTimeout(() => {
-              if (!frame.matches(':hover')) return;
-              leave.kill();
-              enter.play(0);
-              setTimeout(() => {
-                setActive(i);
-                if (!reduced) setShowScene(true);
-                showBox(e.clientX, e.clientY);
-              }, 150);
-            }, 200);
+          on(frame, 'mouseenter', () => {
+            cancelPending();
+            pending.push(
+              later(() => {
+                if (!frame.matches(':hover')) return;
+                // The exit's reset lands at its end; a re-entry inside that
+                // window used to have it wipe the row it had just lit up.
+                leave?.kill();
+                leave = null;
+                enter.pause().invalidate().play(0);
+                pending.push(
+                  later(() => {
+                    if (!frame.matches(':hover')) return;
+                    setActive(i);
+                    if (!reduced) setShowScene(true);
+                    showBox(pointer.x, pointer.y);
+                  }, 150),
+                );
+              }, 200),
+            );
           });
           on(frame, 'mouseleave', () => {
-            enter.kill();
-            leave.kill();
-            gsap.to(bg, {
-              scaleX: 0.5,
-              duration: 0.3,
-              ease: 'power1.in',
-              onComplete: () => {
-                gsap.to(bg, { opacity: 0, duration: 0.1 });
-                gsap.set(bottom, { color: '', opacity: 0, yPercent: 200 });
-                gsap.set(top, { color: '', yPercent: 0 });
-              },
-            });
+            cancelPending();
+            enter.pause();
+            leave?.kill();
+            leave = gsap
+              .timeline()
+              .to(bg, { scaleX: 0.5, duration: 0.3, ease: 'power1.in' })
+              .to(bg, { opacity: 0, duration: 0.1 })
+              .set(bottom, { color: '', opacity: 0, yPercent: 200 }, '<')
+              .set(top, { color: '', yPercent: 0 }, '<');
             hideBox();
           });
         });
         return () => {
           ac.abort();
+          timers.forEach(clearTimeout);
           intervals.forEach(clearInterval);
           clearTimeout(warmUp);
           clearTimeout(coolDown);

@@ -18,6 +18,14 @@ type Props = {
   variant?: number;
   /** Aspect of the box the art fills. */
   ratio?: 'square' | 'wide';
+  /** The case's position in the list, printed on the poster (variant 0). */
+  number?: number;
+  /**
+   * The corner captions. Off where the box crops the art ("slice"): the Fresh
+   * Drop panel is far wider than the art on desktop and squarer on phones, and
+   * cut its captions in half at both.
+   */
+  labels?: boolean;
 };
 
 /**
@@ -25,7 +33,7 @@ type Props = {
  * the case's palette — a soft accent glow, a grid, a few slabs and rings,
  * and the case name set small in the corner.
  */
-export default function CaseArt({ c, variant = 0, ratio = 'square' }: Props) {
+export default function CaseArt({ c, variant = 0, ratio = 'square', number = 1, labels = true }: Props) {
   const w = ratio === 'square' ? 600 : 960;
   const h = 600;
   const [bg, accent] = c.palette;
@@ -82,15 +90,21 @@ export default function CaseArt({ c, variant = 0, ratio = 'square' }: Props) {
           key={i}
         />
       ))}
-      <text x="28" y={h - 28} fontFamily="DM Mono, monospace" fontSize="16" fill="#fff" fillOpacity="0.85" letterSpacing="2">
-        {c.name.toUpperCase()}
-      </text>
-      <text x={w - 28} y={h - 28} textAnchor="end" fontFamily="DM Mono, monospace" fontSize="16" fill="#fff" fillOpacity="0.6" letterSpacing="2">
-        {`${c.category} / ${c.year}`}
-      </text>
-      <text x="28" y="60" fontFamily="Archivo, sans-serif" fontWeight="900" fontSize="34" fill="#fff" fillOpacity="0.9">
-        {String(variant + 1).padStart(2, '0')}
-      </text>
+      {labels && (
+        <>
+          <text x="28" y={h - 28} fontFamily="DM Mono, monospace" fontSize="16" fill="#fff" fillOpacity="0.85" letterSpacing="2">
+            {c.name.toUpperCase()}
+          </text>
+          <text x={w - 28} y={h - 28} textAnchor="end" fontFamily="DM Mono, monospace" fontSize="16" fill="#fff" fillOpacity="0.6" letterSpacing="2">
+            {`${c.category} / ${c.year}`}
+          </text>
+          <text x="28" y="60" fontFamily="Archivo, sans-serif" fontWeight="900" fontSize="34" fill="#fff" fillOpacity="0.9">
+            {/* Posters carry the case number (every tile used to read "01");
+                gallery frames count 01..03 within the case. */}
+            {String(variant === 0 ? number : variant).padStart(2, '0')}
+          </text>
+        </>
+      )}
     </svg>
   );
 }

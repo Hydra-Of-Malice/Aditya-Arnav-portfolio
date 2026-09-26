@@ -54,11 +54,18 @@ export function unlockScroll() {
 /** Scroll to a hash target, through Lenis when it's running. */
 export function scrollToHash(hash: string) {
   const el = document.querySelector<HTMLElement>(hash);
-  if (!el) return;
+  if (el) scrollToElement(el);
+}
+
+/** Scroll an element to just under the header, through Lenis when it's running. */
+export function scrollToElement(el: HTMLElement) {
   // Measured, not parsed: the token is `4rem` on mobile and parseInt() read
-  // that as 4px, dropping every jump target under the header.
+  // that as 4px, dropping every jump target under the header. The white bar
+  // that slides in behind the header (its ::after, `--header-height` tall) is
+  // taller than the header box itself, so take whichever is larger.
   const header = document.querySelector<HTMLElement>('.header');
-  const offset = header ? -header.getBoundingClientRect().height : 0;
+  const bar = header ? parseFloat(getComputedStyle(header, '::after').height) || 0 : 0;
+  const offset = header ? -Math.max(header.getBoundingClientRect().height, bar) : 0;
   if (instance) instance.scrollTo(el, { offset, duration: 1.4 });
   else window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY + offset, behavior: 'smooth' });
 }

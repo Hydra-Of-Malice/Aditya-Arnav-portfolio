@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { gsap, ScrollTrigger } from '../lib/gsap';
 import { isDesktopDevice } from '../lib/device';
 import { caseCounts, cases, latestCase } from '../site';
@@ -179,7 +180,7 @@ export default function Cases() {
               </div>
               <div className="latest__panel latest__panel--cover">
                 <div className="latest__bg cursor__trigger js-latest-case-bg">
-                  <CaseArt c={latestCase} ratio="wide" />
+                  <CaseArt c={latestCase} ratio="wide" labels={false} />
                 </div>
                 {/* The cover panel repeats the title so it can slide across the
                     artwork; the accessibility tree only needs it once. */}
@@ -217,7 +218,7 @@ export default function Cases() {
                   onKeyDown={openOnKey(() => setOpenId(c.id))}
                 >
                   <div className="cases__asset js-case-asset">
-                    <CaseArt c={c} />
+                    <CaseArt c={c} number={i + 2} />
                   </div>
                   <div className="cases__description">
                     <span className="cases__name text-small js-case-name">{c.name}</span>
@@ -229,7 +230,11 @@ export default function Cases() {
         </div>
       </section>
 
-      {mountedCase && <CasePopup c={mountedCase} open={openId === mountedCase.id} onClose={close} key={mountedCase.id} />}
+      {/* Portalled out of <main>: an open dialog makes #content inert, and
+          rendered in place the popup was inert along with it — its close
+          button, links and gallery scroll all stopped responding. */}
+      {mountedCase &&
+        createPortal(<CasePopup c={mountedCase} open={openId === mountedCase.id} onClose={close} key={mountedCase.id} />, document.body)}
     </>
   );
 }

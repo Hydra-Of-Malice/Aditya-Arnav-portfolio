@@ -24,6 +24,7 @@ export default function ResumePopup() {
   const [values, setValues] = useState<Record<string, string>>({});
   const [done, setDone] = useState(false);
   const opener = useRef<HTMLElement | null>(null);
+  const wasOpen = useRef(false);
 
   const ready = fields.every((f) => (values[f.name] || '').trim().length > 0) && /^\S+@\S+\.\S+$/.test(values.email || '');
 
@@ -32,6 +33,9 @@ export default function ResumePopup() {
       onResumePopupOpen(() => {
         // Remember what opened us so focus can go back there on close.
         opener.current = document.activeElement as HTMLElement | null;
+        // Start from a blank form every time, including after a success.
+        setDone(false);
+        setValues({});
         setOpen(true);
       }),
     [],
@@ -41,34 +45,35 @@ export default function ResumePopup() {
     const popup = root.current!;
     const content = popup.querySelector<HTMLElement>('.popup-capabilities__content')!;
     const first = popup.querySelector<HTMLInputElement>('.form-contact__input');
+    gsap.killTweensOf([popup, content]);
     if (open) {
+      wasOpen.current = true;
       lockScroll();
       setBackgroundInert(true);
       document.body.classList.add('is-popup-open');
-      popup.classList.add('open');
-      gsap
+      const intro = gsap
         .timeline({ defaults: { duration: 0.2 } })
         .to(popup, { autoAlpha: 1 })
-        .fromTo(content, { autoAlpha: 0 }, { autoAlpha: 1, duration: 1.5, ease: 'power3.out' }, '<+0.25');
-      setTimeout(() => first?.focus(), 100);
+        // Opacity only on the card: with autoAlpha it sat at visibility:
+        // hidden for the first quarter second, and the input could not take
+        // focus, so focus never moved into the dialog.
+        .fromTo(content, { opacity: 0 }, { opacity: 1, duration: 1.5, ease: 'power3.out' }, 0.25)
+        .call(() => first?.focus({ preventScroll: true }), undefined, 0.2);
       const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
       document.addEventListener('keydown', onKey);
-      return () => document.removeEventListener('keydown', onKey);
+      return () => {
+        intro.kill();
+        document.removeEventListener('keydown', onKey);
+      };
     }
-    if (popup.classList.contains('open')) {
-      unlockScroll();
-      setBackgroundInert(false);
-      // Reset so the form is usable again next time it is opened.
-      setTimeout(() => {
-        setDone(false);
-        setValues({});
-      }, 400);
-      popup.classList.remove('open');
-      document.body.classList.remove('is-popup-open');
-      gsap.to(popup, { autoAlpha: 0 });
-      first?.blur();
-      opener.current?.focus?.();
-    }
+    if (!wasOpen.current) return;
+    wasOpen.current = false;
+    unlockScroll();
+    setBackgroundInert(false);
+    document.body.classList.remove('is-popup-open');
+    gsap.to(popup, { autoAlpha: 0 });
+    (document.activeElement as HTMLElement | null)?.blur?.();
+    opener.current?.focus?.({ preventScroll: true });
   }, [open]);
 
   const submit = (e: FormEvent) => {
@@ -84,7 +89,10 @@ export default function ResumePopup() {
 
   return (
     <div
-      className={`popup-capabilities ${done ? '--success' : ''}`}
+      // `open` must be part of the rendered className: adding it imperatively
+      // meant the re-render on submit (for `--success`) wiped it, leaving the
+      // dialog visible but unclickable and the page locked behind it.
+      className={`popup-capabilities ${open ? 'open' : ''} ${done ? '--success' : ''}`}
       ref={root}
       data-lenis-prevent
       role="dialog"

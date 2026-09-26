@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { ScrollTrigger } from '../lib/gsap';
+import { scrollToElement } from '../lib/smoothScroll';
 import { contactForm, person } from '../site';
 import ContactLinks from './ContactLinks';
 
@@ -39,18 +40,25 @@ export default function Contact() {
       return;
     }
     const subject = encodeURIComponent(`Project enquiry from ${v.name} (${v.company})`);
+    // The field is labelled "https://", but people paste full URLs into it.
+    const site = v.site.trim().replace(/^https?:\/\//i, '');
     const body = encodeURIComponent(
       [
         `Hi ${person.name.split(' ')[0]},`,
         '',
         v.message || '(no brief yet)',
         '',
-        `— ${v.name}, ${v.company}${v.site ? ` (https://${v.site})` : ''}`,
+        `— ${v.name}, ${v.company}${site ? ` (https://${site})` : ''}`,
         `Email: ${v.email}${v.phone ? `\nPhone: ${v.phone}` : ''}`,
       ].join('\n'),
     );
     window.open(`mailto:${person.email}?subject=${subject}&body=${body}`, '_self');
     setDone(true);
+    // The submit button sits at the foot of a tall form; the thank-you takes
+    // the form's place, so bring its top back into view (on a phone it was
+    // left above the screen with only blank space showing).
+    const wrapper = root.current?.querySelector<HTMLElement>('.block-form__content-wrapper');
+    if (wrapper) requestAnimationFrame(() => scrollToElement(wrapper));
   };
 
   const item = (key: keyof typeof v, id: string, label: string, type = 'text') => {
@@ -97,7 +105,16 @@ export default function Contact() {
                   <label className="form-contact__label js-form-item-label" htmlFor="c-company">
                     *My company name is...
                   </label>
-                  <input autoComplete="off" className="form-contact__input js-form-item-input" id="c-company" type="text" value={v.company} onChange={set('company')} />
+                  <input
+                    autoComplete="off"
+                    className="form-contact__input js-form-item-input"
+                    id="c-company"
+                    type="text"
+                    value={v.company}
+                    onChange={set('company')}
+                    required
+                    aria-invalid={(showErrors && invalid.company) || undefined}
+                  />
                   {/* The optional site sits under the company name in the small
                       mono face, so it reads as a footnote rather than a second
                       headline field. */}
@@ -127,7 +144,16 @@ export default function Contact() {
                       <label className="form-contact__column-label text-small" htmlFor="c-email">
                         My Email:
                       </label>
-                      <input autoComplete="off" className="form-contact__input" id="c-email" type="email" value={v.email} onChange={set('email')} />
+                      <input
+                        autoComplete="off"
+                        className="form-contact__input"
+                        id="c-email"
+                        type="email"
+                        value={v.email}
+                        onChange={set('email')}
+                        required
+                        aria-invalid={(showErrors && invalid.email) || undefined}
+                      />
                     </div>
                     <div className="form-contact__column">
                       <label className="form-contact__column-label text-small" htmlFor="c-phone">

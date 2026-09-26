@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { gsap, SplitText } from '../lib/gsap';
-import { isDesktopDevice } from '../lib/device';
+import { isDesktopDevice, prefersReducedMotion } from '../lib/device';
 import { scrollToHash } from '../lib/smoothScroll';
 import { numbers } from '../site';
 import { Star } from './Icons';
@@ -76,16 +76,20 @@ export default function Numbers() {
         on(btn, 'mouseenter', () => open.play());
         on(btn, 'mouseleave', () => open.reverse());
       }
-      gsap
-        .timeline({
-          repeat: -1,
-          yoyo: true,
-          scrollTrigger: { trigger: btn, start: 'top bottom', end: 'bottom top', toggleActions: 'play pause resume pause' },
-        })
-        .fromTo(stars[0], { autoAlpha: 0, scale: 0 }, { autoAlpha: 1, scale: 1, duration: 0.5 })
-        .fromTo(stars[1], { autoAlpha: 0, scale: 0 }, { autoAlpha: 1, scale: 1, duration: 0.5 })
-        .fromTo(stars[2], { autoAlpha: 0, scale: 0 }, { autoAlpha: 1, scale: 1, duration: 0.4 }, 0)
-        .fromTo(stars[3], { autoAlpha: 0, scale: 0 }, { autoAlpha: 1, scale: 1, duration: 0.3 });
+      // A forever-yoyo would flicker every frame under reduced motion (GSAP
+      // runs 200x fast there), so the stars simply stay lit instead.
+      if (!prefersReducedMotion()) {
+        gsap
+          .timeline({
+            repeat: -1,
+            yoyo: true,
+            scrollTrigger: { trigger: btn, start: 'top bottom', end: 'bottom top', toggleActions: 'play pause resume pause' },
+          })
+          .fromTo(stars[0], { autoAlpha: 0, scale: 0 }, { autoAlpha: 1, scale: 1, duration: 0.5 })
+          .fromTo(stars[1], { autoAlpha: 0, scale: 0 }, { autoAlpha: 1, scale: 1, duration: 0.5 })
+          .fromTo(stars[2], { autoAlpha: 0, scale: 0 }, { autoAlpha: 1, scale: 1, duration: 0.4 }, 0)
+          .fromTo(stars[3], { autoAlpha: 0, scale: 0 }, { autoAlpha: 1, scale: 1, duration: 0.3 });
+      }
       return () => ac.abort();
     }, section);
     return () => ctx.revert();
@@ -126,16 +130,20 @@ export default function Numbers() {
       <svg className="partners__line" viewBox="0 0 3000 28" fill="none" preserveAspectRatio="none" aria-hidden>
         <path d="M3000 13.84L0 13.84" stroke="#414141" strokeOpacity="0.53" strokeWidth="1.5" />
       </svg>
-      <div className="callBtn cursor__trigger js-partnets-btn">
+      {/* The whole ellipse reads as the button (pointer cursor, hover
+          rings), so a click anywhere on it goes to the contact form; the link
+          inside stays the keyboard / screen-reader target, and its click
+          bubbles up to this handler. */}
+      <div
+        className="callBtn cursor__trigger js-partnets-btn"
+        role="presentation"
+        onClick={(e) => {
+          e.preventDefault();
+          scrollToHash('#contact');
+        }}
+      >
         <div className="callBtn__shape callBtn__shape--top js-partnets-btn-top" />
-        <a
-          href="#contact"
-          className="callBtn__link js-partnets-link"
-          onClick={(e) => {
-            e.preventDefault();
-            scrollToHash('#contact');
-          }}
-        >
+        <a href="#contact" className="callBtn__link js-partnets-link">
           {numbers.kickOff}
         </a>
         <div className="callBtn__shape callBtn__shape--bottom js-partnets-btn-bottom" />

@@ -356,5 +356,7 @@ export const footer = {
 
 export const contactForm = {
   title: ["Let's", 'Talk'] as const,
-  success: ['thank you', 'Thanks for reaching out. I will reply by email shortly.'],
+  // Nothing is sent from the page — the mail app opens with the message — so
+  // the copy asks for the send rather than claiming it happened.
+  success: ['thank you', 'Your mail app should be open with everything filled in — hit send and I will reply shortly.'],
 };

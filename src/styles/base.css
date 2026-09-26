@@ -107,7 +107,9 @@ button {
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
-button:focus {
+/* Only mouse focus loses the ring. A bare `button:focus` outranked
+   `:focus-visible` below and stripped the outline from keyboard focus too. */
+button:focus:not(:focus-visible) {
   outline: 0;
 }
 /* The brand green is only 1.4:1 on white, so the ring is drawn in the ink
