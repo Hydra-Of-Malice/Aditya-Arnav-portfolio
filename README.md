@@ -1,164 +1,138 @@
-# Aditya Arnav — Portfolio
+<div align="center">
 
-Personal portfolio site. React + TypeScript + Vite, GSAP, Lenis and
-react-three-fiber. The layout and interaction design follow
-[hobro.digital](https://hobro.digital/) (Awwwards SOTD), rebuilt from scratch
-with the résumé content in `src/data.ts`.
+# 🚀 Aditya Arnav — Portfolio
 
-## Commands
+### See what I build, in one scroll.
+
+**Interactive 3D scenes · Real projects with source links · Résumé one click away**
+
+[![Live site](https://img.shields.io/badge/live-visit%20site-00e68a?style=for-the-badge)](https://aditya-arnav-portfolio.vercel.app)
+![Platform](https://img.shields.io/badge/platform-web-555?style=for-the-badge)
+![Requires](https://img.shields.io/badge/requires-WebGL-9a6700?style=for-the-badge)
+![Reduced motion](https://img.shields.io/badge/reduced%20motion-supported-2f6fde?style=for-the-badge)
+
+<img src="docs/screenshot-main.png" width="720" alt="Portfolio hero: the name ADITYA ARNAV over a glowing 3D scene">
+
+</div>
+
+This is the personal portfolio of Aditya Arnav, an AI software engineer. Recruiters can skim projects, internships, and patents in one page and request the résumé. Collaborators can open any project's case study and jump to its GitHub repo or live demo.
+
+## 💡 Why you'll like it
+
+| | |
+|---|---|
+| ⚡ **Everything on one page** | About, experience, projects, patents, stack, and contact, in one scroll. |
+| 🗂️ **Projects you can inspect** | Every project opens a case study with its stack and links to the code. |
+| 📄 **Résumé on request** | A résumé card and button are always within reach. |
+| 🎮 **Fun to explore** | Drag the letters of the name, hover rows to reveal 3D scenes. |
+| ♿ **Keyboard and screen-reader friendly** | Project tiles open with Enter or Space, and dialogs close with Escape. |
+| 🧘 **Calm mode respected** | With reduced motion on, 3D scenes and looping animations stay off. |
+
+## 🧭 Three steps
+
+<img src="docs/screenshot-projects.png" width="720" alt="The Fresh Drop featured project and the Selected Cases grid">
+
+1. **Open the site.** Go to [aditya-arnav-portfolio.vercel.app](https://aditya-arnav-portfolio.vercel.app).
+2. **Scroll the story.** Move from the intro to projects, patents, and the tech stack.
+3. **Get in touch.** Request the résumé or send a message from the Contact section.
+
+## 🌐 Visit or run it
+
+The site is live at **https://aditya-arnav-portfolio.vercel.app**. Nothing to install.
+
+To run it on your own machine:
+
+1. Install [Node.js](https://nodejs.org) 20.19 or newer.
+2. Clone the repo and install dependencies (see Development below).
+3. Run `npm run dev` and open the address it prints.
+
+| Requirement | Details |
+|---|---|
+| Browser | A current desktop or mobile browser with WebGL |
+| Best experience | Desktop with a mouse: smooth scrolling, cursor effects, and hover scenes are desktop only |
+| Node.js | 20.19 or newer, only for running locally |
+| Not supported | Browsers without WebGL show the page without its 3D scenes. There is no server, so forms do not send anything on their own. |
+
+## 🔍 What it does
+
+| Stage | What happens |
+|---|---|
+| Loading | Black curtains and a progress bar cover the page while fonts and scripts load. |
+| Hero | The name appears over a 3D scene. Letters can be dragged and reordered. A résumé card slides in. |
+| What I do | Title words, a typed paragraph, and a dot grid that shows quotes on hover. |
+| Features | Hovering a row brings up a 3D scene next to the pointer. On touch screens the rows step with scroll. |
+| Cases | A featured project and a grid of projects. Each opens a full-screen case study. |
+| Vision, Numbers, Identity | Scroll-revealed text, counters, and a draggable strip of work, education, and patent cards. |
+| Contact | A form that opens your mail app with the message filled in. |
+
+## ⚙️ How it works
+
+```text
+ src/data.ts ──► src/site.ts ──► React sections ──► GSAP + Lenis (motion)
+  (résumé)       (page copy)          │
+                                      └──► three.js scenes (loaded after the page)
+```
+
+| Component | Purpose | License |
+|---|---|---|
+| React | UI components | MIT |
+| Vite | Dev server and production build | MIT |
+| TypeScript | Type checking | Apache-2.0 |
+| GSAP | Scroll and entrance animation | GSAP Standard "no charge" license |
+| Lenis | Smooth scrolling on desktop | MIT |
+| three.js, @react-three/fiber, @react-three/drei | 3D scenes | MIT |
+| SortableJS | Draggable letters in the hero | MIT |
+| @vercel/analytics | Page view analytics | MIT |
+| Archivo, Instrument Serif, Inter, DM Mono | Fonts, loaded from Google Fonts | SIL Open Font License 1.1 |
+
+The layout and interaction design follow [hobro.digital](https://hobro.digital/), rebuilt from scratch. Free fonts stand in for the reference's licensed ones.
+
+## ⚠️ Known limits
+
+- The contact forms have no backend. They open a pre-filled email in your mail app.
+- There are no automated tests.
+- Link previews on social media show no image. There is no `og:image` yet.
+- On iPhone, "Add to Home Screen" shows no custom icon. It needs a 180×180 PNG.
+- The main JavaScript bundle is about 486 kB, mostly animation plugins. Slow connections will see the loader longer.
+- Smooth scrolling, the custom cursor, and hover scenes are desktop only.
+- Page views are tracked with Vercel Analytics.
+
+## 🛠️ Development
+
+Prerequisites: Git and Node.js 20.19 or newer.
 
 ```bash
+git clone https://github.com/Hydra-Of-Malice/Aditya-Arnav-portfolio.git
+cd Aditya-Arnav-portfolio
 npm install
-npm run dev      # dev server
-npm run build    # typecheck + production build to dist/
-npm run preview  # serve the production build
-npm run lint     # oxlint
+npm run dev
 ```
 
-## Structure
+| Command | What it does |
+|---|---|
+| `npm run dev` | Start the dev server |
+| `npm run build` | Type-check and build to `dist/` |
+| `npm run preview` | Serve the production build |
+| `npm run lint` | Lint with oxlint |
 
-```
-src/
-  data.ts                 résumé facts — edit this, not the components
-  site.ts                 shapes data.ts into the page's sections and copy
-  index.css               imports the three stylesheets below
-  styles/
-    base.css              tokens, reset, the four type roles, curtains
-    chrome.css            loader, cursor, header, buttons, popup, forms
-    sections.css          one block per section, top to bottom
-  lib/
-    gsap.ts               registers every GSAP plugin + the custom eases
-    smoothScroll.ts       Lenis (desktop only), scroll lock, scrollToHash
-    loader.ts             loaderExited / loaderComplete events
-    device.ts             is-desktop / is-mobile (hover + fine pointer)
-    popup.ts              event bus for the résumé popup
-    hooks.ts              useIsDesktop, useInView
-  components/
-    Loader, Cursor, Header, ResumePopup       page chrome
-    Hero, Stickers, Cta, WhatIDo, Features,   sections, in page order
-    Cases (+CasePopup, CaseArt), Vision,
-    CtaBand, Numbers, Identity, Contact, Footer
-    three/                                    the WebGL scenes
-      HeroScene   warm, breathing form + bokeh behind the name
-      FeatureScene four scenes swapped in one canvas, follows the cursor
-      VisionScene  low-angle meadow behind "Core Vision"
+| Folder / file | Contents |
+|---|---|
+| `src/data.ts` | Résumé facts. Edit this, not the components. |
+| `src/site.ts` | Turns the data into page sections and copy |
+| `src/components/` | One component per section, plus loader, cursor, header, and popups |
+| `src/components/three/` | The three WebGL scenes |
+| `src/lib/` | GSAP setup, smooth scroll, device detection, hooks |
+| `src/styles/` | Design tokens, page chrome, and section styles |
+| `docs/` | Screenshots and [architecture notes](docs/ARCHITECTURE.md) |
+
+Build for production:
+
+```bash
+npm run build
 ```
 
-## Design
+The output in `dist/` is a static site. It is deployed on Vercel.
 
-Black and white, one neon green, four type roles:
+## 📄 License
 
-| role       | face (free stand-in for the reference's licensed one) | used for                          |
-| ---------- | ----------------------------------------------------- | --------------------------------- |
-| title      | Archivo 900                                           | the huge uppercase headings       |
-| cursive    | Instrument Serif italic                               | the counterpoint word in a title  |
-| text       | Inter                                                 | body copy, mid-size headings      |
-| typewriter | DM Mono                                               | every label, caption and button   |
-
-Everything is CSS custom properties on `:root` in `styles/base.css`; change
-`--c-brand-primary` to re-accent the whole site.
-
-### Interactions
-
-- **Loader** — black curtains and a white progress bar; the bar creeps while
-  the window loads, then the curtains scale away. `loaderExited` fires as they
-  open, `loaderComplete` when the bar is full. Sections key their entrances
-  off those.
-- **Cursor** — a green dot and a lagging white ring in `difference` blend.
-  `.cursor__trigger` grows the ring; `.js-nav-cursor-hover` stretches it into a
-  pill around the element. Hover targets are found by delegation.
-- **Hero** — the name is rendered letter by letter; letters can be dragged and
-  reordered between the two words (SortableJS). The WebGL scene scales in
-  behind, and the résumé card slides up from the bottom-right a few seconds
-  later (dismissal is remembered for the session).
-- **Stickers** — eight tech stickers flashed in sequence inside a white box;
-  the headline is revealed per character on scroll.
-- **What I Do** — the three title words slide in at different speeds; the
-  paragraph is "typed"; five hairlines ripple (MorphSVG) on hover; the dot
-  grid shows a random "My approach" quote in a tooltip that follows the
-  pointer.
-- **Features** — hovering a row paints a black pill behind it, swaps its label
-  for two cycling words, and brings up a 3D scene beside the pointer with the
-  reference's skew-and-rotate reveal. On touch devices the section pins and
-  scrolling steps through the rows.
-- **Cases** — "Fresh Drop" has a white cover panel that slides across on
-  hover; grid tiles are cut in from a corner as they scroll into view and
-  round their corners on hover; every tile opens a full-screen popup with a
-  curtain-revealed gallery. Artwork is generated per case (`CaseArt`) from a
-  seed and a two-colour palette.
-- **Vision** — cursive title and big paragraph revealed per character as you
-  scroll, three columns drift up, the email is typed out.
-- **Numbers** — counters in the cursive face, and the elliptical "Let's kick
-  off" button whose rings part on hover.
-- **Identity** — a title wiped in by six curtains, words sliding in from both
-  sides, and a draggable (inertia) strip of work / education / patent cards.
-- **Contact** — the reference's "Let's Talk" page, folded in as a section.
-  Submitting opens a pre-filled mail; there is no backend.
-
-Smooth scrolling is Lenis on desktop and native on mobile. All scroll-driven
-animation is GSAP ScrollTrigger. Every WebGL canvas stops rendering when it
-is off screen, and `three` is code-split so it loads after the page.
-
-### Accessibility
-
-- Every project tile is an operable button: reachable by Tab, opened with
-  Enter or Space, and named "Open case study: …". Both overlays are modal
-  dialogs and close on Escape.
-- The split display headings ("What I DO", "My core identity", "ARNAV LNK")
-  carry an explicit `aria-label`, because their words are separate elements
-  and would otherwise be announced run together.
-- Form text meets WCAG AA. The dimmed field labels and the idle submit button
-  were at 2.2:1 and 1.7:1; they are now above 6:1.
-- **`prefers-reduced-motion: reduce`** is honoured properly: the three WebGL
-  scenes and the footer canvas never start, Lenis hands scrolling back to the
-  browser, every looping CSS keyframe and transition is neutralised, and
-  GSAP's global timeline is sped up so entrances land on their end state
-  instead of travelling. Because of that speed-up, the infinite GSAP loops
-  (the sticker flash, the kick-off stars, the Features word swap) are not
-  started at all — at 200× they strobed every frame. Scroll-scrubbed text
-  reveals still follow the scroll, since they are progress-driven rather than
-  time-driven.
-
-### Things worth knowing
-
-- The device branch (`is-desktop` / `is-mobile`, from `hover` + `pointer` +
-  a 1025px floor) is keyed onto `<main>` in `App.tsx`. Crossing that boundary
-  by resizing or rotating remounts the sections so they re-initialise for the
-  layout they are now in, rather than leaving desktop behaviour on a touch
-  device.
-- Listeners added inside a `gsap.context()` are **not** removed by
-  `ctx.revert()`. Every one is bound to an `AbortController` signal that the
-  context's own cleanup fires — without that they accumulate on each remount.
-- Only the open case popup is mounted. Keeping all nine in the DOM cost about
-  1,100 nodes, a third of the page, for markup nobody had opened.
-- An open dialog makes `#content`, the header and the footer `inert`, so a
-  dialog must never render inside them: the case popup is portalled to
-  `<body>` (rendered in place it went inert with the page — its close button,
-  links and gallery scroll all stopped responding).
-- Never add a class imperatively to an element whose `className` React
-  renders from state: the next re-render wipes it. The résumé popup's `open`
-  class is part of its rendered `className` for that reason.
-- GSAP transforms on SVG *children* bake their own origin offset, and a CSS
-  `transform-origin` / `transform-box` on the same element is applied on top.
-  The dot grid highlights with a CSS class instead.
-- SplitText splits that animate `chars` also split `words`; chars on their
-  own are inline-blocks and let the browser break a word between any two
-  letters.
-- `.block-form__head` waits at `translateX(50%)` until its trigger fires, so
-  `.block-form` is `overflow-x: clip`; `html`/`body` carry the same guard.
-- `<main>` waits for `document.fonts.ready` (racing a 2s timeout) before it
-  mounts, because SplitText measures line boxes — splitting against the
-  fallback face produced masks sized for the wrong widths. The loader covers
-  that wait.
-- Both forms open a pre-filled mail; nothing is sent from the page, and the
-  success copy says so.
-
-### Known gaps
-
-- No `og:image` / `twitter:image`, so link shares render without a preview
-  card. Needs a 1200×630 asset in `public/`.
-- `apple-touch-icon` points at the SVG favicon, which iOS ignores; it wants a
-  180×180 PNG.
-- The critical JS chunk is ~486 kB, mostly the GSAP plugins (SortableJS is
-  already loaded on demand, desktop only). Splitting the below-the-fold
-  plugins behind a dynamic import would trim it further.
+All rights reserved. The code is public to read, but no license is granted to reuse it. Third-party components keep their own licenses, listed in How it works above.
