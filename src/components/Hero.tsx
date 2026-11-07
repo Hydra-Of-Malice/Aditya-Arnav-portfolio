@@ -1,212 +1,77 @@
-import { lazy, Suspense, useEffect, useRef, useState } from 'react';
-import type Sortable from 'sortablejs';
-import type { Options as SortableOptions } from 'sortablejs';
-import { gsap, SplitText } from '../lib/gsap';
-import { isDesktopDevice } from '../lib/device';
-import { waitForLoaderExitOnce } from '../lib/loader';
-import { person, resumeCta } from '../site';
-import { useInView, useReducedMotion } from '../lib/hooks';
-import ResumeButton from './ResumeButton';
-import SceneBoundary from './SceneBoundary';
+import { hero, projects, trace } from '../data';
+import { openResume } from '../lib/resume';
+import { ArrowRight } from './Icons';
+import Sources from './Sources';
 
-// three.js is only pulled in once the loader is gone.
-const HeroScene = lazy(() => import('./three/HeroScene'));
+const minutes = projects.find((p) => p.id === 'minutes')!;
 
-const CTA_HIDDEN_KEY = 'hero-cta-banner-hidden';
-
-/**
- * Full-viewport black hero: the name as individually draggable letters over a
- * WebGL scene, three mono lines beneath, and a résumé card that slides in
- * from the bottom-right a couple of seconds after the loader.
- */
-export default function Hero() {
-  const root = useRef<HTMLElement>(null);
-  const sceneRef = useRef<HTMLDivElement>(null);
-  const inView = useInView(sceneRef, '0px');
-  const reduced = useReducedMotion();
-  const [sceneOn, setSceneOn] = useState(false);
-
-  useEffect(() => {
-    const about = root.current!;
-    const scene = about.querySelector<HTMLElement>('.about__scene')!;
-    const letters = about.querySelectorAll<HTMLElement>('.about-title-js .letter');
-    const subtitle = about.querySelector<HTMLElement>('.about-subtitle-js')!;
-    const mark = about.querySelector<HTMLElement>('.about__mark')!;
-    const left = about.querySelector<HTMLElement>('.title-left-js')!;
-    const right = about.querySelector<HTMLElement>('.title-right-js')!;
-
-    let split: SplitText | undefined;
-    let sortables: Sortable[] = [];
-    let intro: gsap.core.Animation[] = [];
-    let cancelled = false;
-
-    gsap.set(scene, { scale: 0 });
-    // Past 100%: the word masks carry 0.05em of padding, so at exactly 100%
-    // the top of every waiting letter showed as a sliver under the mask.
-    gsap.set(letters, { yPercent: 130 });
-    gsap.set(mark, { autoAlpha: 0 });
-    split = SplitText.create(subtitle, { type: 'lines', linesClass: 'line' });
-    gsap.set(split.lines, { yPercent: 100, opacity: 0 });
-
-    waitForLoaderExitOnce().then(() => {
-      if (cancelled) return;
-      setSceneOn(true);
-      intro = [
-        gsap.to(scene, { scale: 1, duration: 1, delay: 0.25 }),
-        gsap
-          .timeline({ delay: 1.2 })
-          .to(letters, { yPercent: 0, stagger: 0.1, duration: 0.97, ease: 'branding' })
-          .to(split!.lines, { yPercent: 0, opacity: 1, stagger: 0.4, duration: 0.9, delay: 0.6, ease: 'branding' }, 0)
-          .to(mark, { autoAlpha: 1, duration: 0.6 }, 2.3),
-      ];
-
-      // Letters can be dragged between the two words, as on the reference.
-      // Desktop only, so SortableJS is fetched only there, after the loader,
-      // rather than riding in the critical bundle for every visitor.
-      if (isDesktopDevice()) {
-        import('sortablejs').then(({ default: Sortable }) => {
-          if (cancelled) return;
-          const opts: SortableOptions = {
-            group: 'shared',
-            animation: 150,
-            direction: 'horizontal',
-            ghostClass: 'letter-ghost',
-            chosenClass: 'letter-chosen',
-            dragClass: 'letter-drag',
-            forceFallback: true,
-          };
-          sortables = [Sortable.create(left, opts), Sortable.create(right, opts)];
-        });
-      }
-    });
-
-    return () => {
-      cancelled = true;
-      intro.forEach((a) => a.kill());
-      sortables.forEach((s) => s.destroy());
-      split?.revert();
-    };
-  }, []);
+/** The page's one bright element: a real trace from the Minutes demo. */
+function Trace() {
+  const flagged = trace.work.filter((w) => w.flagged).length;
 
   return (
-    <section className="about js-about" id="top" ref={root}>
-      <div className="container about__container">
-        <div className="about__column about__headline">
-          <div className="title__box">
-            <h1 className="hidden">{person.name}</h1>
-            <div className="about__title title about-title-js" aria-hidden>
-              {person.heroWords.map((word, i) => (
-                <div className={i === 0 ? 'title-left title-left-js' : 'title-right title-right-js'} key={word}>
-                  {word.split('').map((ch, j) => (
-                    <span className="letter" key={`${word}-${j}`}>
-                      {ch}
-                    </span>
-                  ))}
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="about__text">
-            <div className="about__subtitle subtitle about-subtitle-js">
-              {person.heroLines.map((l) => (
-                <span key={l}>
-                  {l}
-                  <br />
-                </span>
-              ))}
-            </div>
-          </div>
-          <div className="about__mark" aria-hidden>
-            <span />
-            <span />
-            <span />
-          </div>
-        </div>
+    <figure className="trace">
+      <header className="trace__head">
+        <span className="trace__name">{trace.project}</span>
+        <span className="trace__where">{trace.workspace}</span>
+      </header>
 
-        <div className="about__column about__column-cta">
-          <HeroCta />
-        </div>
-
-        <div className="about__scene" ref={sceneRef} aria-hidden>
-          {sceneOn && !reduced && (
-            <SceneBoundary>
-              <Suspense fallback={null}>
-                <HeroScene active={inView} />
-              </Suspense>
-            </SceneBoundary>
-          )}
-        </div>
+      <div className="trace__block">
+        <p className="trace__label">Decisions that changed</p>
+        <ul className="trace__changes">
+          {trace.changes.map((c) => (
+            <li key={c.to}>
+              <s>{c.from}</s>
+              <ArrowRight />
+              <span>{c.to}</span>
+            </li>
+          ))}
+        </ul>
       </div>
-    </section>
+
+      <div className="trace__block">
+        <p className="trace__label">
+          Work that depended on them
+          <span>
+            {flagged} of {trace.work.length} flagged
+          </span>
+        </p>
+        <ul className="trace__work">
+          {trace.work.map((w) => (
+            <li className={w.flagged ? 'is-flagged' : ''} key={w.title}>
+              <span className="trace__title">{w.title}</span>
+              <span className="trace__owner">{w.owner}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <figcaption className="trace__foot">
+        <p>{trace.caption}</p>
+        <Sources items={minutes.sources} about="Minutes" />
+      </figcaption>
+    </figure>
   );
 }
 
-function HeroCta() {
-  const card = useRef<HTMLDivElement>(null);
-  const [hidden] = useState(() => {
-    try {
-      return sessionStorage.getItem(CTA_HIDDEN_KEY) === 'true';
-    } catch {
-      return false;
-    }
-  });
-  const tl = useRef<gsap.core.Timeline | null>(null);
-
-  useEffect(() => {
-    if (hidden) return;
-    const el = card.current!;
-    const about = el.closest<HTMLElement>('.about')!;
-    const title = el.querySelector('.cch__title');
-    const button = el.querySelector('.capabilities-button-component');
-    const close = el.querySelector('.cch__close-button');
-
-    const ro = new ResizeObserver(([entry]) => {
-      about.style.setProperty('--capabilities-cta-height', `${entry.borderBoxSize[0].blockSize}px`);
-    });
-    ro.observe(el);
-
-    gsap.set(el, { autoAlpha: 0, yPercent: 100 });
-    gsap.set(title, { yPercent: 50, opacity: 0 });
-    gsap.set(button, { yPercent: 20, opacity: 0 });
-    gsap.set(close, { scale: -1, opacity: 0 });
-
-    let cancelled = false;
-    waitForLoaderExitOnce().then(() => {
-      if (cancelled) return;
-      tl.current = gsap
-        .timeline()
-        .to(el, { autoAlpha: 1, delay: 2.6, duration: 0.6, yPercent: 0, ease: 'power2.in' })
-        .to(title, { yPercent: 0, opacity: 1 }, '<+0.55')
-        .to(button, { yPercent: 0, opacity: 1 }, '<+0.25')
-        .to(close, { scale: 1, opacity: 1, duration: 0.8 }, '<');
-    });
-
-    return () => {
-      cancelled = true;
-      ro.disconnect();
-      tl.current?.kill();
-    };
-  }, [hidden]);
-
-  if (hidden) return null;
-
-  const dismiss = () => {
-    tl.current?.reverse();
-    try {
-      sessionStorage.setItem(CTA_HIDDEN_KEY, 'true');
-    } catch {
-      /* storage unavailable */
-    }
-  };
-
+export default function Hero() {
   return (
-    <div className="capabilities-cta-hero cch" ref={card}>
-      <div className="cch__background" aria-hidden />
-      <div className="cch__body">
-        <h3 className="cch__title">{resumeCta.title}</h3>
-        <ResumeButton label="GET YOUR COPY" />
-        <button className="cch__close-button cursor__trigger" type="button" aria-label="Dismiss" onClick={dismiss} />
+    <section className="hero" id="top">
+      <div className="wrap hero__grid">
+        <div className="hero__text">
+          <h1>{hero.headline}</h1>
+          <p>{hero.text}</p>
+          <div className="hero__actions">
+            <a className="btn btn--primary" href="#work">
+              See the work
+            </a>
+            <button className="btn btn--secondary" type="button" onClick={openResume}>
+              Request résumé
+            </button>
+          </div>
+        </div>
+        <Trace />
       </div>
-    </div>
+    </section>
   );
 }

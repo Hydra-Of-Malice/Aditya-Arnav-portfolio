@@ -1,187 +1,131 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { ScrollTrigger } from '../lib/gsap';
-import { scrollToElement } from '../lib/smoothScroll';
-import { contactForm, person } from '../site';
-import ContactLinks from './ContactLinks';
+import { useState, type FormEvent } from 'react';
+import { person } from '../data';
+import { openResume } from '../lib/resume';
+import { Github, Leetcode, Linkedin } from './Icons';
+import Section from './Section';
 
-/**
- * The reference's "Let's Talk" page, folded into the home page as a section.
- * Submitting opens a pre-filled mail; there is no backend.
- */
+const socials = [
+  { label: 'LinkedIn', href: person.linkedin, Icon: Linkedin },
+  { label: 'GitHub', href: person.github, Icon: Github },
+  { label: 'LeetCode', href: person.leetcode, Icon: Leetcode },
+];
+
+const validEmail = (v: string) => /^\S+@\S+\.\S+$/.test(v);
+
+/** There is no backend. Sending opens the visitor's mail app, filled in. */
 export default function Contact() {
-  const root = useRef<HTMLDivElement>(null);
-  const [v, setV] = useState({ name: '', company: '', site: '', message: '', email: '', phone: '' });
-  const [done, setDone] = useState(false);
+  const [v, setV] = useState({ name: '', company: '', email: '', message: '' });
+  const [sent, setSent] = useState(false);
   const [showErrors, setShowErrors] = useState(false);
 
-  const ready = v.name.trim() && v.company.trim() && /^\S+@\S+\.\S+$/.test(v.email);
-
-  useEffect(() => {
-    const el = root.current!;
-    const st = ScrollTrigger.create({ trigger: el, start: 'top 70%', once: true, onEnter: () => el.classList.add('--animate') });
-    return () => st.kill();
-  }, []);
-
+  const invalid = { name: !v.name.trim(), email: !validEmail(v.email) };
   const set = (k: keyof typeof v) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setV((s) => ({ ...s, [k]: e.target.value }));
 
-  const invalid = {
-    name: !v.name.trim(),
-    company: !v.company.trim(),
-    email: !/^\S+@\S+\.\S+$/.test(v.email),
-  };
-
   const submit = (e: FormEvent) => {
     e.preventDefault();
-    if (!ready) {
+    if (invalid.name || invalid.email) {
       setShowErrors(true);
-      const first = (['name', 'company', 'email'] as const).find((k) => invalid[k]);
-      if (first) root.current?.querySelector<HTMLElement>(`#c-${first === 'company' ? 'company' : first}`)?.focus();
       return;
     }
-    const subject = encodeURIComponent(`Project enquiry from ${v.name} (${v.company})`);
-    // The field is labelled "https://", but people paste full URLs into it.
-    const site = v.site.trim().replace(/^https?:\/\//i, '');
+    const from = v.company.trim() ? `${v.name} (${v.company})` : v.name;
+    const subject = encodeURIComponent(`Message from ${from}`);
     const body = encodeURIComponent(
-      [
-        `Hi ${person.name.split(' ')[0]},`,
-        '',
-        v.message || '(no brief yet)',
-        '',
-        `— ${v.name}, ${v.company}${site ? ` (https://${site})` : ''}`,
-        `Email: ${v.email}${v.phone ? `\nPhone: ${v.phone}` : ''}`,
-      ].join('\n'),
+      [`Hi ${person.name.split(' ')[0]},`, '', v.message || '(no message yet)', '', from, `Reply to: ${v.email}`].join('\n'),
     );
     window.open(`mailto:${person.email}?subject=${subject}&body=${body}`, '_self');
-    setDone(true);
-    // The submit button sits at the foot of a tall form; the thank-you takes
-    // the form's place, so bring its top back into view (on a phone it was
-    // left above the screen with only blank space showing).
-    const wrapper = root.current?.querySelector<HTMLElement>('.block-form__content-wrapper');
-    if (wrapper) requestAnimationFrame(() => scrollToElement(wrapper));
-  };
-
-  const item = (key: keyof typeof v, id: string, label: string, type = 'text') => {
-    const bad = showErrors && invalid[key as keyof typeof invalid];
-    return (
-      <div className={`form-contact__item js-form-item ${v[key].trim() ? 'active' : ''} ${bad ? 'error' : ''}`}>
-        <label className="form-contact__label js-form-item-label" htmlFor={id}>
-          {label}
-        </label>
-        <input
-          autoComplete="off"
-          className="form-contact__input js-form-item-input"
-          id={id}
-          type={type}
-          value={v[key]}
-          onChange={set(key)}
-          required
-          aria-invalid={bad || undefined}
-        />
-      </div>
-    );
+    setSent(true);
   };
 
   return (
-    <div className="block-form" id="contact" ref={root}>
-      <div className="block-form__inner">
-        <div className="block-form__head">
-          <h2 className="block-form__title" aria-label={contactForm.title.join(' ')}>
-            <span className="title-secondary">{contactForm.title[0]}</span>
-            <span className="title-secondary--cursive">{contactForm.title[1]}</span>
-          </h2>
-        </div>
-        <div className="block-form__content--right">
-          <ContactLinks />
-        </div>
-        <div className={`block-form__content-wrapper js-block-form ${done ? '--success' : ''}`}>
-          <form className="block-form__content form-contact js-form-contact" onSubmit={submit} noValidate>
-            <div className="form-contact__inner">
-              <fieldset className="form-contact__group">
-                {item('name', 'c-name', `*Hello ${person.name.split(' ')[0]}, my name is...`)}
-                <div
-                  className={`form-contact__item form-contact__item--company js-form-item ${v.company.trim() ? 'active' : ''} ${showErrors && invalid.company ? 'error' : ''}`}
-                >
-                  <label className="form-contact__label js-form-item-label" htmlFor="c-company">
-                    *My company name is...
-                  </label>
-                  <input
-                    autoComplete="off"
-                    className="form-contact__input js-form-item-input"
-                    id="c-company"
-                    type="text"
-                    value={v.company}
-                    onChange={set('company')}
-                    required
-                    aria-invalid={(showErrors && invalid.company) || undefined}
-                  />
-                  {/* The optional site sits under the company name in the small
-                      mono face, so it reads as a footnote rather than a second
-                      headline field. */}
-                  <div className="company-wrap">
-                    <label className="company-label" htmlFor="c-site">
-                      Current site https://
-                    </label>
-                    <input autoComplete="off" className="company-input" id="c-site" type="text" value={v.site} onChange={set('site')} />
-                  </div>
-                </div>
-              </fieldset>
-              <fieldset className="form-contact__group">
-                <div className={`form-contact__item js-form-item ${v.message.trim() ? 'active' : ''}`}>
-                  <label className="form-contact__label js-form-item-label" htmlFor="c-message">
-                    Now, a little about my project...
-                  </label>
-                  <textarea className="js-form-item-input" id="c-message" maxLength={1000} value={v.message} onChange={set('message')} />
-                </div>
-              </fieldset>
-              <fieldset className="form-contact__group">
-                <div
-                  className={`form-contact__item js-form-item ${v.email.trim() || v.phone.trim() ? 'active' : ''} ${showErrors && invalid.email ? 'error' : ''}`}
-                >
-                  <div className="form-contact__label">*you can contact me...</div>
-                  <div className="form-contact__columns">
-                    <div className="form-contact__column">
-                      <label className="form-contact__column-label text-small" htmlFor="c-email">
-                        My Email:
-                      </label>
-                      <input
-                        autoComplete="off"
-                        className="form-contact__input"
-                        id="c-email"
-                        type="email"
-                        value={v.email}
-                        onChange={set('email')}
-                        required
-                        aria-invalid={(showErrors && invalid.email) || undefined}
-                      />
-                    </div>
-                    <div className="form-contact__column">
-                      <label className="form-contact__column-label text-small" htmlFor="c-phone">
-                        My Phone:
-                      </label>
-                      <input autoComplete="off" className="form-contact__input" id="c-phone" type="tel" placeholder="(000) 000 0000" value={v.phone} onChange={set('phone')} />
-                    </div>
-                  </div>
-                </div>
-                <p className="form-contact__note" role="status">
-                  {showErrors && !ready
-                    ? 'Please add your name, your company and a valid email address.'
-                    : 'Submitting opens your mail client with everything pre-filled.'}
-                </p>
-              </fieldset>
-            </div>
-            <div className="form-contact__footer">
-              <button className={`form-contact__btn js-form-contact-cta ${ready ? 'is-form-ready' : ''}`} type="submit">
-                <span className="btn-title">Submit</span>
+    <Section id="contact" title="Contact" intro="Working on LLMs, computer vision or backend systems? I would like to compare notes.">
+      <div className="contact">
+        <dl className="ledger ledger--contact">
+          <div className="ledger__row">
+            <dt>Email</dt>
+            <dd>
+              <a href={`mailto:${person.email}`}>{person.email}</a>
+            </dd>
+          </div>
+          <div className="ledger__row">
+            <dt>Based in</dt>
+            <dd>{person.location}</dd>
+          </div>
+          <div className="ledger__row">
+            <dt>Timezone</dt>
+            <dd>{person.timezone}</dd>
+          </div>
+          <div className="ledger__row">
+            <dt>Elsewhere</dt>
+            <dd className="socials">
+              {socials.map(({ label, href, Icon }) => (
+                <a href={href} key={label} target="_blank" rel="noreferrer">
+                  <Icon />
+                  {label}
+                </a>
+              ))}
+            </dd>
+          </div>
+          <div className="ledger__row">
+            <dt>Résumé</dt>
+            <dd>
+              <button className="text-link" type="button" onClick={openResume}>
+                Request a copy
               </button>
+            </dd>
+          </div>
+        </dl>
+
+        {sent ? (
+          <div className="form__sent" role="status">
+            <p className="form__sent-title">Your mail app should be open</p>
+            <p>The message is filled in. Send it from there and I will reply.</p>
+            <button className="text-link" type="button" onClick={() => setSent(false)}>
+              Write another
+            </button>
+          </div>
+        ) : (
+          <form className="form" onSubmit={submit} noValidate>
+            <div className="form__row">
+              <div className="field">
+                <label htmlFor="c-name">Name</label>
+                <input
+                  id="c-name"
+                  autoComplete="name"
+                  value={v.name}
+                  onChange={set('name')}
+                  aria-invalid={(showErrors && invalid.name) || undefined}
+                />
+              </div>
+              <div className="field">
+                <label htmlFor="c-company">Company (optional)</label>
+                <input id="c-company" autoComplete="organization" value={v.company} onChange={set('company')} />
+              </div>
+            </div>
+            <div className="field">
+              <label htmlFor="c-email">Email</label>
+              <input
+                id="c-email"
+                type="email"
+                autoComplete="email"
+                value={v.email}
+                onChange={set('email')}
+                aria-invalid={(showErrors && invalid.email) || undefined}
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="c-message">Message</label>
+              <textarea id="c-message" rows={5} maxLength={1000} value={v.message} onChange={set('message')} />
+            </div>
+            <div className="form__foot">
+              <button className="btn btn--primary" type="submit">
+                Open in mail app
+              </button>
+              <p role="status">{showErrors && (invalid.name || invalid.email) ? 'Add your name and a valid email' : 'Nothing is sent from this page'}</p>
             </div>
           </form>
-          <div className="block-form__success">
-            <div className="block-form__success-title title">{contactForm.success[0]}</div>
-            <div className="block-form__success-subtitle subtitle">{contactForm.success[1]}</div>
-          </div>
-        </div>
+        )}
       </div>
-    </div>
+    </Section>
   );
 }
