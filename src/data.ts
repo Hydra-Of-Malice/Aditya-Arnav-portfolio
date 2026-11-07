@@ -427,7 +427,7 @@ export const experience: Role[] = [
   },
   {
     company: 'Zapper Edge',
-    role: 'Software Builder 1 Intern',
+    role: 'Software Builder - 1 Intern',
     period: 'May 2026 to Aug 2026',
     place: 'Remote',
     points: [
